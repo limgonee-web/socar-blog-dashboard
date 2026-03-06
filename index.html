@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>쏘카 블로그 운영 대시보드</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#F0F4F8;min-height:100vh;color:#111}
+  button{cursor:pointer;font-family:inherit}
+  .header{background:#fff;border-bottom:1px solid #E5E7EB;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+  .logo{width:36px;height:36px;background:#00B4D8;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px}
+  .header-info{margin-left:12px}
+  .header-title{font-weight:800;font-size:17px}
+  .header-sub{font-size:12px;color:#9CA3AF;margin-top:2px}
+  .btn-primary{background:#00B4D8;color:#fff;border:none;border-radius:10px;padding:9px 18px;font-weight:700;font-size:14px}
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 28px 0}
+  .card{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  .card-label{font-size:12px;color:#9CA3AF;font-weight:600}
+  .card-value{font-size:28px;font-weight:800;margin:4px 0}
+  .card-sub{font-size:11px;color:#9CA3AF}
+  .tabs{display:flex;gap:6px;padding:20px 28px 0}
+  .tab{padding:8px 18px;border-radius:10px;border:none;background:#fff;color:#6B7280;font-weight:700;font-size:13px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .tab.active{background:#00B4D8;color:#fff}
+  .content{padding:16px 28px 40px}
+  .panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  .filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+  .filter-btn{padding:5px 14px;border-radius:20px;border:1px solid #E5E7EB;background:#fff;color:#6B7280;font-size:13px;font-weight:600}
+  .filter-btn.active{background:#00B4D8;color:#fff;border-color:#00B4D8}
+  select.fsel{padding:5px 12px;border:1px solid #E5E7EB;border-radius:20px;font-size:13px;color:#374151;font-family:inherit;margin-left:auto}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;padding:8px 10px;font-size:12px;color:#9CA3AF;font-weight:700;border-bottom:2px solid #F3F4F6}
+  td{padding:12px 10px;border-bottom:1px solid #F9FAFB;font-size:14px;vertical-align:top}
+  .td-title{font-weight:600}
+  .td-memo{font-size:11px;color:#9CA3AF;margin-top:2px}
+  .btn-sm{font-size:12px;padding:4px 10px;border-radius:6px}
+  .btn-edit{border:1px solid #E5E7EB;background:#fff}
+  .btn-del{border:1px solid #FEE2E2;background:#FFF5F5;color:#EF4444}
+  .badge{padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;display:inline-block;white-space:nowrap}
+  .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .kcol{background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  .kcol-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .kcard{background:#F9FAFB;border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;border-left:3px solid #ccc}
+  .kcard-title{font-size:13px;font-weight:700;margin-bottom:6px}
+  .kcard-date{font-size:11px;color:#9CA3AF;margin-top:6px}
+  .cal-wrap{display:grid;grid-template-columns:1fr 300px;gap:16px}
+  .cal-panel{background:#fff;border-radius:14px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .cal-nav button{background:none;border:none;font-size:20px;color:#6B7280;padding:0 8px;line-height:1}
+  .cal-nav span{font-weight:700;font-size:15px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+  .cal-dname{text-align:center;font-size:11px;font-weight:700;color:#9CA3AF;padding:4px 0}
+  .cal-cell{min-height:56px;background:#F9FAFB;border-radius:6px;padding:4px 3px;border:1px solid #F3F4F6}
+  .cal-cell.today{background:#E0F7FA;border:2px solid #00B4D8}
+  .cal-num{font-size:11px;font-weight:500;color:#374151;margin-bottom:2px}
+  .cal-cell.today .cal-num{color:#00B4D8;font-weight:800}
+  .cal-ev{font-size:9px;color:#fff;border-radius:3px;padding:1px 3px;margin-bottom:1px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .upcoming{padding:12px 0;border-bottom:1px solid #F3F4F6}
+  .upcoming-title{font-size:13px;font-weight:700;margin-bottom:6px}
+  .upcoming-date{font-size:12px;color:#6B7280;margin-top:4px}
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .rank-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F3F4F6}
+  .rank-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+  .rank-views{font-size:15px;font-weight:800;color:#00B4D8;margin-left:auto}
+  .bar-wrap{background:#F3F4F6;border-radius:8px;height:8px;overflow:hidden;margin:6px 0 4px}
+  .bar{height:100%;border-radius:8px}
+  .goal-box{margin-top:16px;padding:14px 16px;background:#F0F9FF;border-radius:10px}
+  .goal-title{font-size:13px;font-weight:700;color:#00B4D8;margin-bottom:4px}
+  .goal-text{font-size:12px;color:#6B7280;line-height:1.8}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center}
+  .modal{background:#fff;border-radius:16px;padding:28px;width:480px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+  .modal h3{margin-bottom:20px;font-size:18px;font-weight:700}
+  .fg{margin-bottom:14px}
+  .fg label{font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px}
+  .fg input,.fg select,.fg textarea{width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:14px;font-family:inherit}
+  .fg textarea{resize:vertical}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+  .btn-cancel{padding:8px 20px;border-radius:8px;border:1px solid #D1D5DB;background:#fff;font-size:14px}
+  .btn-save{padding:8px 20px;border-radius:8px;border:none;background:#00B4D8;color:#fff;font-size:14px;font-weight:700}
+  .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1F2937;color:#fff;padding:10px 22px;border-radius:10px;font-size:14px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+  .toast.show{opacity:1}
+  .loading{text-align:center;padding:60px;color:#9CA3AF;font-size:15px}
+  .empty{text-align:center;padding:40px;color:#9CA3AF;font-size:14px}
+  @media(max-width:900px){
+    .summary{grid-template-columns:repeat(2,1fr)}
+    .kanban{grid-template-columns:repeat(2,1fr)}
+    .cal-wrap,.stats-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- ====== 여기에 Apps Script 웹앱 URL을 붙여넣으세요 ====== -->
+<script>
+const API_URL = "YOUR_APPS_SCRIPT_URL_HERE";
+</script>
+<!-- ===================================================== -->
+
+<div class="header">
+  <div style="display:flex;align-items:center">
+    <div class="logo">S</div>
+    <div class="header-info">
+      <div class="header-title">쏘카 블로그 운영 대시보드</div>
+      <div class="header-sub">주 2회 발행 · 서비스 이해 + 이용 케이스</div>
+    </div>
+  </div>
+  <button class="btn-primary" onclick="openModal(null)">+ 새 아이템</button>
+</div>
+
+<div class="summary" id="summary"></div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" onclick="setTab('pool',this)">아이템 풀</button>
+  <button class="tab" onclick="setTab('kanban',this)">상태 보드</button>
+  <button class="tab" onclick="setTab('calendar',this)">발행 캘린더</button>
+  <button class="tab" onclick="setTab('stats',this)">성과 트래킹</button>
+</div>
+
+<div class="content" id="content"><div class="loading">데이터 불러오는 중...</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 설정 ──────────────────────────────────────────
+const CATS = {
+  understand: { label:"서비스 이해", color:"#00B4D8", bg:"#E0F7FA" },
+  usecase:    { label:"이용 케이스", color:"#F97316", bg:"#FFF3E0" }
+};
+const STATUSES = ["기획","작성","검토","발행"];
+const ST_COLORS = {
+  기획: { bg:"#F3F4F6", text:"#6B7280" },
+  작성: { bg:"#DBEAFE", text:"#1D4ED8" },
+  검토: { bg:"#FEF3C7", text:"#B45309" },
+  발행: { bg:"#D1FAE5", text:"#065F46" }
+};
+
+// ── 상태 ──────────────────────────────────────────
+let items = [];
+let curTab = "pool";
+let filterCat = "all";
+let filterStatus = "all";
+let calYear, calMonth;
+const today = new Date();
+calYear = today.getFullYear();
+calMonth = today.getMonth();
+
+// ── API ──────────────────────────────────────────
+async function api(action, body={}) {
+  if (action === "getAll") {
+    const res = await fetch(`${API_URL}?action=getAll`);
+    return res.json();
+  }
+  const res = await fetch(API_URL, {
+    method:"POST", body: JSON.stringify({action,...body})
+  });
+  return res.json();
+}
+
+async function loadData() {
+  try {
+    const r = await api("getAll");
+    items = r.data || [];
+    render();
+  } catch(e) {
+    document.getElementById("content").innerHTML = `<div class="loading" style="color:#EF4444">데이터 로드 실패. API_URL을 확인해주세요.<br><small>${e}</small></div>`;
+  }
+}
+
+// ── 배지 ──────────────────────────────────────────
+function badge(status) {
+  const s = ST_COLORS[status]||{bg:"#eee",text:"#666"};
+  return `<span class="badge" style="background:${s.bg};color:${s.text}">${status}</span>`;
+}
+function catBadge(cat) {
+  const c = CATS[cat]||CATS.understand;
+  return `<span class="badge" style="background:${c.bg};color:${c.color}">${c.label}</span>`;
+}
+
+// ── 렌더 ──────────────────────────────────────────
+function render() {
+  renderSummary();
+  renderContent();
+}
+
+function renderSummary() {
+  const pub = items.filter(i=>i.status==="발행");
+  const totalViews = pub.reduce((s,i)=>s+Number(i.views||0),0);
+  const uCount = items.filter(i=>i.category==="understand").length;
+  const cCount = items.filter(i=>i.category==="usecase").length;
+  const cards = [
+    {label:"전체 아이템", value:items.length, sub:`서비스이해 ${uCount} · 케이스 ${cCount}`, color:"#6366F1"},
+    {label:"발행 완료",   value:pub.length,   sub:"발행된 아티클",   color:"#10B981"},
+    {label:"진행 중",     value:items.filter(i=>i.status!=="발행").length, sub:"기획~검토 단계", color:"#F97316"},
+    {label:"누적 조회수", value:totalViews.toLocaleString(), sub:"발행 아티클 합산", color:"#00B4D8"},
+  ];
+  document.getElementById("summary").innerHTML = cards.map(c=>`
+    <div class="card">
+      <div class="card-label">${c.label}</div>
+      <div class="card-value" style="color:${c.color}">${c.value}</div>
+      <div class="card-sub">${c.sub}</div>
+    </div>`).join("");
+}
+
+function renderContent() {
+  const el = document.getElementById("content");
+  if (curTab==="pool")     el.innerHTML = renderPool();
+  if (curTab==="kanban")   el.innerHTML = renderKanban();
+  if (curTab==="calendar") el.innerHTML = renderCalendar();
+  if (curTab==="stats")    el.innerHTML = renderStats();
+}
+
+// ── 아이템 풀 ─────────────────────────────────────
+function renderPool() {
+  const filtered = items.filter(i=>
+    (filterCat==="all"||i.category===filterCat) &&
+    (filterStatus==="all"||i.status===filterStatus)
+  );
+  const catBtns = ["all","understand","usecase"].map(k=>`
+    <button class="filter-btn${filterCat===k?" active":""}" onclick="setFilterCat('${k}')">${k==="all"?"전체":CATS[k].label}</button>`).join("");
+  const statusOpts = ["all",...STATUSES].map(s=>`<option value="${s}"${filterStatus===s?" selected":""}>${s==="all"?"모든 상태":s}</option>`).join("");
+  const rows = filtered.length ? filtered.map(it=>`
+    <tr>
+      <td><div class="td-title">${esc(it.title)}</div>${it.memo?`<div class="td-memo">${esc(it.memo)}</div>`:""}</td>
+      <td>${catBadge(it.category)}</td>
+      <td>${badge(it.status)}</td>
+      <td style="font-size:13px;color:#6B7280">${it.publishDate||"-"}</td>
+      <td style="font-size:13px;font-weight:600">${it.views?Number(it.views).toLocaleString():"-"}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn-sm btn-edit" onclick="openModal(${it.id})">편집</button>
+          <button class="btn-sm btn-del" onclick="deleteItem(${it.id})">삭제</button>
+        </div>
+      </td>
+    </tr>`).join("") : `<tr><td colspan="6" class="empty">아이템이 없어요</td></tr>`;
+  return `<div class="panel">
+    <div class="filter-row">
+      ${catBtns}
+      <select class="fsel" onchange="setFilterStatus(this.value)">${statusOpts}</select>
+    </div>
+    <table>
+      <thead><tr>
+        <th>제목</th><th>카테고리</th><th>상태</th><th>발행일</th><th>조회수</th><th></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+// ── 칸반 ──────────────────────────────────────────
+function renderKanban() {
+  return `<div class="kanban">${STATUSES.map(st=>{
+    const col = items.filter(i=>i.status===st);
+    const sc = ST_COLORS[st];
+    const cards = col.length ? col.map(it=>`
+      <div class="kcard" style="border-left-color:${CATS[it.category]?.color||'#ccc'}" onclick="openModal(${it.id})">
+        <div class="kcard-title">${esc(it.title)}</div>
+        ${catBadge(it.category)}
+        ${it.publishDate?`<div class="kcard-date">📅 ${it.publishDate}</div>`:""}
+      </div>`).join("") : `<div style="font-size:13px;color:#D1D5DB;text-align:center;padding:20px 0">없음</div>`;
+    return `<div class="kcol">
+      <div class="kcol-head">
+        <span class="badge" style="background:${sc.bg};color:${sc.text}">${st}</span>
+        <span style="font-size:13px;color:#9CA3AF;font-weight:600">${col.length}</span>
+      </div>
+      ${cards}
+    </div>`;
+  }).join("")}</div>`;
+}
+
+// ── 캘린더 ────────────────────────────────────────
+function renderCalendar() {
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const mStr = `${calYear}-${String(calMonth+1).padStart(2,"0")}`;
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+
+  const dateMap = {};
+  items.forEach(it=>{
+    if(it.publishDate&&it.publishDate.startsWith(mStr)){
+      const d = parseInt(it.publishDate.split("-")[2]);
+      (dateMap[d]=dateMap[d]||[]).push(it);
+    }
+  });
+
+  const dayNames = ["일","월","화","수","목","금","토"].map(d=>`<div class="cal-dname">${d}</div>`).join("");
+  let cells = Array(firstDay).fill(`<div></div>`);
+  for(let d=1;d<=daysInMonth;d++){
+    const ds = `${calYear}-${String(calMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const isT = ds===todayStr;
+    const evts = (dateMap[d]||[]).map(it=>`<div class="cal-ev" style="background:${CATS[it.category]?.color||'#999'}">${esc(it.title)}</div>`).join("");
+    cells.push(`<div class="cal-cell${isT?" today":""}"><div class="cal-num">${d}</div>${evts}</div>`);
+  }
+
+  const upcoming = [...items].filter(i=>i.publishDate&&i.status!=="발행").sort((a,b)=>a.publishDate>b.publishDate?1:-1).slice(0,4);
+  const upcomingHtml = upcoming.length ? upcoming.map(it=>`
+    <div class="upcoming">
+      <div class="upcoming-title">${esc(it.title)}</div>
+      <div class="upcoming-badges">${catBadge(it.category)} ${badge(it.status)}</div>
+      <div class="upcoming-date">📅 ${it.publishDate}</div>
+    </div>`).join("") : `<div style="color:#9CA3AF;font-size:13px">예정된 아티클 없음</div>`;
+
+  return `<div class="cal-wrap">
+    <div class="cal-panel">
+      <div class="cal-nav">
+        <button onclick="calMove(-1)">‹</button>
+        <span>${calYear}년 ${calMonth+1}월</span>
+        <button onclick="calMove(1)">›</button>
+      </div>
+      <div class="cal-grid">${dayNames}${cells.join("")}</div>
+    </div>
+    <div class="cal-panel">
+      <div style="font-weight:700;font-size:15px;margin-bottom:14px">예정된 발행</div>
+      ${upcomingHtml}
+    </div>
+  </div>`;
+}
+
+function calMove(dir) {
+  calMonth += dir;
+  if(calMonth<0){calMonth=11;calYear--;}
+  if(calMonth>11){calMonth=0;calYear++;}
+  renderContent();
+}
+
+// ── 성과 ──────────────────────────────────────────
+function renderStats() {
+  const pub = [...items].filter(i=>i.status==="발행").sort((a,b)=>Number(b.views||0)-Number(a.views||0));
+  const totalV = pub.reduce((s,i)=>s+Number(i.views||0),0);
+  const thisMonth = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}`;
+  const pubThisMonth = pub.filter(i=>i.publishDate&&i.publishDate.startsWith(thisMonth)).length;
+  const target = Math.floor(4.3*2);
+
+  const rankHtml = pub.length ? pub.map((it,i)=>`
+    <div class="rank-item">
+      <div class="rank-num" style="background:${i<3?"#00B4D8":"#F3F4F6"};color:${i<3?"#fff":"#9CA3AF"}">${i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(it.title)}</div>
+        <div style="margin-top:4px">${catBadge(it.category)}</div>
+      </div>
+      <div class="rank-views">${Number(it.views||0).toLocaleString()}</div>
+    </div>`).join("") : `<div class="empty">발행된 아티클이 없어요</div>`;
+
+  const catHtml = Object.entries(CATS).map(([k,v])=>{
+    const ci = items.filter(i=>i.category===k);
+    const cp = ci.filter(i=>i.status==="발행");
+    const cv = cp.reduce((s,i)=>s+Number(i.views||0),0);
+    const pct = items.length ? Math.round(ci.length/items.length*100) : 0;
+    return `<div style="padding:14px 0;border-bottom:1px solid #F3F4F6">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;align-items:center">
+        ${catBadge(k)}
+        <span style="font-size:13px;color:#9CA3AF">전체 ${ci.length}개 · 발행 ${cp.length}개</span>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:${pct}%;background:${v.color}"></div></div>
+      <div style="font-size:12px;color:#6B7280">누적 조회수 ${cv.toLocaleString()}</div>
+    </div>`;
+  }).join("");
+
+  return `<div class="stats-grid">
+    <div class="panel">
+      <div style="font-weight:700;font-size:15px;margin-bottom:16px">발행 아티클 조회수 순위</div>
+      ${rankHtml}
+    </div>
+    <div class="panel">
+      <div style="font-weight:700;font-size:15px;margin-bottom:16px">카테고리별 현황</div>
+      ${catHtml}
+      <div class="goal-box">
+        <div class="goal-title">주 2회 발행 기준</div>
+        <div class="goal-text">
+          이번 달 목표: <strong>${target}회</strong> 발행<br>
+          이번 달 완료: <strong>${pubThisMonth}회</strong>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── 모달 ──────────────────────────────────────────
+function openModal(id) {
+  const it = id ? items.find(i=>String(i.id)===String(id)) : null;
+  const catOpts = Object.entries(CATS).map(([k,v])=>`<option value="${k}"${it?.category===k?" selected":""}>${v.label}</option>`).join("");
+  const stOpts = STATUSES.map(s=>`<option${it?.status===s?" selected":""}>${s}</option>`).join("");
+  document.body.insertAdjacentHTML("beforeend",`
+    <div class="modal-overlay" id="modal-overlay" onclick="closeModalIfBg(event)">
+      <div class="modal">
+        <h3>${it?"아이템 편집":"새 아이템 추가"}</h3>
+        <input type="hidden" id="m-id" value="${it?.id||""}">
+        <div class="fg"><label>제목</label><input id="m-title" value="${esc(it?.title||"")}" placeholder="아티클 제목 입력"></div>
+        <div class="frow">
+          <div class="fg"><label>카테고리</label><select id="m-cat">${catOpts}</select></div>
+          <div class="fg"><label>상태</label><select id="m-status">${stOpts}</select></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label>발행 예정일</label><input type="date" id="m-date" value="${it?.publishDate||""}"></div>
+          <div class="fg"><label>조회수</label><input type="number" id="m-views" value="${it?.views||0}"></div>
+        </div>
+        <div class="fg"><label>메모</label><textarea id="m-memo" rows="2" placeholder="기획 의도, 참고 사항 등">${esc(it?.memo||"")}</textarea></div>
+        <div class="modal-foot">
+          <button class="btn-cancel" onclick="closeModal()">취소</button>
+          <button class="btn-save" onclick="saveModal()">저장</button>
+        </div>
+      </div>
+    </div>`);
+}
+
+function closeModal() {
+  document.getElementById("modal-overlay")?.remove();
+}
+function closeModalIfBg(e) {
+  if(e.target.id==="modal-overlay") closeModal();
+}
+
+async function saveModal() {
+  const id = document.getElementById("m-id").value;
+  const body = {
+    id: id||undefined,
+    title: document.getElementById("m-title").value.trim(),
+    category: document.getElementById("m-cat").value,
+    status: document.getElementById("m-status").value,
+    publishDate: document.getElementById("m-date").value,
+    views: Number(document.getElementById("m-views").value)||0,
+    memo: document.getElementById("m-memo").value.trim()
+  };
+  if(!body.title){ alert("제목을 입력해주세요."); return; }
+  closeModal();
+  showToast("저장 중...");
+  try {
+    if(id) await api("update", body);
+    else    await api("add", body);
+    await loadData();
+    showToast("저장 완료!");
+  } catch(e) {
+    showToast("저장 실패: "+e);
+  }
+}
+
+async function deleteItem(id) {
+  if(!confirm("삭제할까요?")) return;
+  showToast("삭제 중...");
+  await api("delete", {id});
+  await loadData();
+  showToast("삭제 완료!");
+}
+
+// ── 탭/필터 ───────────────────────────────────────
+function setTab(tab, el) {
+  curTab = tab;
+  document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+  el.classList.add("active");
+  renderContent();
+}
+function setFilterCat(v) { filterCat=v; renderContent(); }
+function setFilterStatus(v) { filterStatus=v; renderContent(); }
+
+// ── 유틸 ──────────────────────────────────────────
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+// ── 초기화 ────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
