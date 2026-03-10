@@ -9,7 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif; background: #f9fafb; font-size: 15px; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif; background: #f9fafb; font-size: 17px; }
 select { appearance: auto; }
 textarea, input { font-family: inherit; }
 pre { white-space: pre-wrap; word-break: break-all; }
@@ -24,7 +24,7 @@ pre { white-space: pre-wrap; word-break: break-all; }
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxmgMSjI1ElXohP5n8kpD4VMt0FCM9D_VHx3nqgz80QUhYYlNginmoPMDs0ZN8AqnWN/exec";
 const BRAND = "#0078ff";
 const STATUS_OPTIONS = ["🗂 기획","✏️ 작성","🔍 검수","🚀 발행","⏸ 보류"];
-const TYPE_OPTIONS = ["서비스 설명","페르소나"];
+const TYPE_OPTIONS = ["서비스 설명","페르소나","기타"];
 const STATUS_STYLE = {
   "🗂 기획": {background:"#f3f4f6",color:"#374151"},
   "✏️ 작성": {background:"#dbeafe",color:"#1d4ed8"},
@@ -35,6 +35,7 @@ const STATUS_STYLE = {
 const TYPE_STYLE = {
   "서비스 설명": {background:"#f3e8ff",color:"#7e22ce"},
   "페르소나":    {background:"#ffedd5",color:"#c2410c"},
+  "기타":        {background:"#e0f2fe",color:"#0369a1"},
 };
 const MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
 const DEFAULT_ISSUES = {
@@ -210,26 +211,26 @@ function GuidelineView({ content }) {
   lines.forEach((line,i) => {
     if (line.startsWith("```")) {
       if (!inCode) { inCode=true; }
-      else { els.push(<pre key={i} style={{background:"#f9fafb",border:"1px solid #e5e7eb",borderRadius:8,padding:14,fontSize:13,color:"#4b5563",margin:"14px 0",lineHeight:1.7}}>{codeBuf.join("\n")}</pre>); codeBuf=[]; inCode=false; }
+      else { els.push(<pre key={i} style={{background:"#f9fafb",border:"1px solid #e5e7eb",borderRadius:8,padding:14,fontSize:15,color:"#4b5563",margin:"14px 0",lineHeight:1.7}}>{codeBuf.join("\n")}</pre>); codeBuf=[]; inCode=false; }
       return;
     }
     if (inCode) { codeBuf.push(line); return; }
-    if (line.startsWith("# "))  { els.push(<h1 key={i} style={{fontSize:24,fontWeight:700,color:"#111827",marginTop:24,marginBottom:12}}>{line.slice(2)}</h1>); return; }
-    if (line.startsWith("## ")) { els.push(<h2 key={i} style={{fontSize:18,fontWeight:700,color:"#1f2937",marginTop:32,marginBottom:8,paddingBottom:6,borderBottom:"1px solid #e5e7eb"}}>{line.slice(3)}</h2>); return; }
-    if (line.startsWith("### ")){ els.push(<h3 key={i} style={{fontSize:16,fontWeight:600,color:"#374151",marginTop:20,marginBottom:4}}>{line.slice(4)}</h3>); return; }
+    if (line.startsWith("# "))  { els.push(<h1 key={i} style={{fontSize:26,fontWeight:700,color:"#111827",marginTop:24,marginBottom:12}}>{line.slice(2)}</h1>); return; }
+    if (line.startsWith("## ")) { els.push(<h2 key={i} style={{fontSize:20,fontWeight:700,color:"#1f2937",marginTop:32,marginBottom:8,paddingBottom:6,borderBottom:"1px solid #e5e7eb"}}>{line.slice(3)}</h2>); return; }
+    if (line.startsWith("### ")){ els.push(<h3 key={i} style={{fontSize:18,fontWeight:600,color:"#374151",marginTop:20,marginBottom:4}}>{line.slice(4)}</h3>); return; }
     if (line.startsWith("---")) { els.push(<hr key={i} style={{margin:"24px 0",borderColor:"#e5e7eb"}}/>); return; }
-    if (line.startsWith("> "))  { els.push(<blockquote key={i} style={{borderLeft:`4px solid ${BRAND}`,paddingLeft:16,color:"#6b7280",fontStyle:"italic",margin:"8px 0",fontSize:14}}>{line.slice(2)}</blockquote>); return; }
-    if (line.startsWith("- "))  { els.push(<li key={i} style={{marginLeft:20,fontSize:14,color:"#374151",lineHeight:1.8,listStyleType:"disc"}}>{renderInline(line.slice(2))}</li>); return; }
-    if (/^\d+\.\s/.test(line))  { els.push(<li key={i} style={{marginLeft:20,fontSize:14,color:"#374151",lineHeight:1.8,listStyleType:"decimal"}}>{renderInline(line.replace(/^\d+\.\s/,""))}</li>); return; }
+    if (line.startsWith("> "))  { els.push(<blockquote key={i} style={{borderLeft:`4px solid ${BRAND}`,paddingLeft:16,color:"#6b7280",fontStyle:"italic",margin:"8px 0",fontSize:16}}>{line.slice(2)}</blockquote>); return; }
+    if (line.startsWith("- "))  { els.push(<li key={i} style={{marginLeft:20,fontSize:16,color:"#374151",lineHeight:1.8,listStyleType:"disc"}}>{renderInline(line.slice(2))}</li>); return; }
+    if (/^\d+\.\s/.test(line))  { els.push(<li key={i} style={{marginLeft:20,fontSize:16,color:"#374151",lineHeight:1.8,listStyleType:"decimal"}}>{renderInline(line.replace(/^\d+\.\s/,""))}</li>); return; }
     if (line.startsWith("|")) {
       const cells = line.split("|").filter((_,ci) => ci>0 && ci<line.split("|").length-1).map(c=>c.trim());
       if (cells.every(c => /^-+$/.test(c))) return;
-      els.push(<tr key={i}>{cells.map((c,ci)=><td key={ci} style={{border:"1px solid #e5e7eb",padding:"8px 14px",fontSize:13,color:"#374151"}}>{c}</td>)}</tr>);
+      els.push(<tr key={i}>{cells.map((c,ci)=><td key={ci} style={{border:"1px solid #e5e7eb",padding:"8px 14px",fontSize:15,color:"#374151"}}>{c}</td>)}</tr>);
       return;
     }
-    if (line.startsWith("**") && line.endsWith("**")) { els.push(<p key={i} style={{fontWeight:600,color:"#1f2937",marginTop:16,marginBottom:4,fontSize:14}}>{line.slice(2,-2)}</p>); return; }
+    if (line.startsWith("**") && line.endsWith("**")) { els.push(<p key={i} style={{fontWeight:600,color:"#1f2937",marginTop:16,marginBottom:4,fontSize:16}}>{line.slice(2,-2)}</p>); return; }
     if (line === "") { els.push(<div key={i} style={{height:8}}/>); return; }
-    els.push(<p key={i} style={{fontSize:14,color:"#374151",lineHeight:1.8,marginBottom:4}}>{renderInline(line)}</p>);
+    els.push(<p key={i} style={{fontSize:16,color:"#374151",lineHeight:1.8,marginBottom:4}}>{renderInline(line)}</p>);
   });
   const wrapped=[]; let trBuf=[];
   els.forEach((el,i) => {
@@ -250,11 +251,11 @@ function ChecklistModal({article,onClose,onUpdate}){
       <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:16,boxShadow:"0 20px 60px rgba(0,0,0,0.15)",width:"100%",maxWidth:460,padding:28}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
           <div>
-            <div style={{fontWeight:700,fontSize:17,color:"#111827"}}>발행 전 체크리스트</div>
-            <div style={{fontSize:13,color:"#6b7280",marginTop:4}}>{article.title}</div>
+            <div style={{fontWeight:700,fontSize:19,color:"#111827"}}>발행 전 체크리스트</div>
+            <div style={{fontSize:15,color:"#6b7280",marginTop:4}}>{article.title}</div>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
-            <span style={{fontSize:14,fontWeight:600,color:BRAND}}>{done}/{CHECKLIST_ITEMS.length}</span>
+            <span style={{fontSize:16,fontWeight:600,color:BRAND}}>{done}/{CHECKLIST_ITEMS.length}</span>
             <button onClick={onClose} style={{color:"#9ca3af",fontSize:20,background:"none",border:"none",cursor:"pointer"}}>✕</button>
           </div>
         </div>
@@ -266,13 +267,13 @@ function ChecklistModal({article,onClose,onUpdate}){
             <label key={item.id} style={{display:"flex",alignItems:"flex-start",gap:10,cursor:"pointer"}}>
               <input type="checkbox" checked={!!checked[item.id]} onChange={e=>onUpdate(article.id,{...checked,[item.id]:e.target.checked})}
                 style={{marginTop:3,width:15,height:15,accentColor:BRAND,flexShrink:0}}/>
-              <span style={{fontSize:14,lineHeight:1.6,color:checked[item.id]?"#9ca3af":"#374151",textDecoration:checked[item.id]?"line-through":"none"}}>{item.label}</span>
+              <span style={{fontSize:15,lineHeight:1.6,color:checked[item.id]?"#9ca3af":"#374151",textDecoration:checked[item.id]?"line-through":"none"}}>{item.label}</span>
             </label>
           ))}
         </div>
-        {!allDone&&<div style={{marginTop:14,background:"#fffbeb",borderRadius:8,padding:"10px 14px",fontSize:13,color:"#92400e"}}>⚠️ 모든 항목을 체크해야 '발행'으로 변경할 수 있어요.</div>}
+        {!allDone&&<div style={{marginTop:14,background:"#fffbeb",borderRadius:8,padding:"10px 14px",fontSize:15,color:"#92400e"}}>⚠️ 모든 항목을 체크해야 '발행'으로 변경할 수 있어요.</div>}
         <div style={{marginTop:18,paddingTop:14,borderTop:"1px solid #f3f4f6",display:"flex",justifyContent:"flex-end"}}>
-          <button onClick={onClose} style={{background:BRAND,color:"#fff",border:"none",borderRadius:8,padding:"10px 24px",fontSize:14,fontWeight:600,cursor:"pointer"}}>완료</button>
+          <button onClick={onClose} style={{background:BRAND,color:"#fff",border:"none",borderRadius:8,padding:"10px 24px",fontSize:15,fontWeight:600,cursor:"pointer"}}>완료</button>
         </div>
       </div>
     </div>
@@ -283,11 +284,11 @@ function BlockModal({onClose,onOpenChecklist}){
     <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:50,padding:16}}>
       <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:16,boxShadow:"0 20px 60px rgba(0,0,0,0.15)",width:"100%",maxWidth:380,padding:28,textAlign:"center"}}>
         <div style={{fontSize:36,marginBottom:14}}>🔒</div>
-        <div style={{fontWeight:700,fontSize:17,color:"#111827",marginBottom:10}}>발행 전 체크리스트를 먼저 완료해주세요</div>
-        <div style={{fontSize:14,color:"#6b7280",marginBottom:24,lineHeight:1.7}}>모든 체크리스트 항목을 완료해야<br/>진행 상태를 '발행'으로 변경할 수 있어요.</div>
+        <div style={{fontWeight:700,fontSize:19,color:"#111827",marginBottom:10}}>발행 전 체크리스트를 먼저 완료해주세요</div>
+        <div style={{fontSize:15,color:"#6b7280",marginBottom:24,lineHeight:1.7}}>모든 체크리스트 항목을 완료해야<br/>진행 상태를 '발행'으로 변경할 수 있어요.</div>
         <div style={{display:"flex",gap:8}}>
-          <button onClick={onClose} style={{flex:1,border:"1px solid #e5e7eb",borderRadius:8,padding:"10px 0",fontSize:14,color:"#6b7280",background:"#fff",cursor:"pointer"}}>닫기</button>
-          <button onClick={onOpenChecklist} style={{flex:1,background:BRAND,color:"#fff",border:"none",borderRadius:8,padding:"10px 0",fontSize:14,fontWeight:600,cursor:"pointer"}}>체크리스트 열기</button>
+          <button onClick={onClose} style={{flex:1,border:"1px solid #e5e7eb",borderRadius:8,padding:"10px 0",fontSize:15,color:"#6b7280",background:"#fff",cursor:"pointer"}}>닫기</button>
+          <button onClick={onOpenChecklist} style={{flex:1,background:BRAND,color:"#fff",border:"none",borderRadius:8,padding:"10px 0",fontSize:15,fontWeight:600,cursor:"pointer"}}>체크리스트 열기</button>
         </div>
       </div>
     </div>
@@ -317,7 +318,6 @@ function App(){
   const [urlInput,setUrlInput]=useState("");
   const [memoSaved,setMemoSaved]=useState({});
 
-  // ── 초기 데이터 로드 ──
   useEffect(()=>{
     (async()=>{
       try {
@@ -371,17 +371,20 @@ function App(){
   const sorted=[...monthArticles].sort((a,b)=>(b.publishDate||"").localeCompare(a.publishDate||""));
   const totalByStatus=s=>articles.filter(a=>(isAllTab||isGuideTab||a.month===selectedTab)&&a.status===s).length;
 
+  // 드롭다운 공통 너비: 왼쪽(유형) 드롭다운 기준으로 통일
+  const DROPDOWN_W = 120;
+
   if(loading) return(
     <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",flexDirection:"column",gap:16}}>
       <div style={{width:36,height:36,borderRadius:"50%",border:`4px solid #e5e7eb`,borderTopColor:BRAND,animation:"spin 0.8s linear infinite"}}/>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-      <div style={{fontSize:15,color:"#9ca3af"}}>데이터 불러오는 중...</div>
+      <div style={{fontSize:17,color:"#9ca3af"}}>데이터 불러오는 중...</div>
     </div>
   );
 
   return(
     <div style={{minHeight:"100vh",background:"#f9fafb",padding:20}}>
-      {saving&&<div style={{position:"fixed",top:16,right:16,background:"#111827",color:"#fff",padding:"8px 16px",borderRadius:8,fontSize:13,zIndex:100}}>저장 중...</div>}
+      {saving&&<div style={{position:"fixed",top:16,right:16,background:"#111827",color:"#fff",padding:"8px 16px",borderRadius:8,fontSize:15,zIndex:100}}>저장 중...</div>}
 
       {/* Header */}
       <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:28}}>
@@ -389,8 +392,8 @@ function App(){
           <span style={{color:"#fff",fontWeight:700,fontSize:16}}>S</span>
         </div>
         <div>
-          <div style={{fontWeight:700,fontSize:20,color:"#111827"}}>쏘카 블로그 운영 캘린더</div>
-          <div style={{fontSize:13,color:"#9ca3af"}}>월간 아티클 기획 및 발행 관리</div>
+          <div style={{fontWeight:700,fontSize:22,color:"#111827"}}>쏘카 블로그 운영 캘린더</div>
+          <div style={{fontSize:15,color:"#9ca3af"}}>월간 아티클 기획 및 발행 관리</div>
         </div>
       </div>
 
@@ -398,7 +401,7 @@ function App(){
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:20}}>
         {[...MONTHS,"전체","가이드라인"].map((m,i)=>(
           <button key={i} onClick={()=>{setSelectedTab(i);setEditingGuide(false);}}
-            style={{padding:"7px 14px",borderRadius:99,fontSize:14,fontWeight:500,cursor:"pointer",transition:"all 0.15s",
+            style={{padding:"7px 14px",borderRadius:99,fontSize:15,fontWeight:500,cursor:"pointer",transition:"all 0.15s",
               background:selectedTab===i?(i===12?"#6366f1":i===13?"#0f766e":BRAND):"#fff",
               color:selectedTab===i?"#fff":"#4b5563",
               border:selectedTab===i?"none":"1px solid #e5e7eb"}}>
@@ -410,19 +413,19 @@ function App(){
       {isGuideTab?(
         <div style={{background:"#fff",borderRadius:12,border:"1px solid #e5e7eb",boxShadow:"0 1px 4px rgba(0,0,0,0.06)",overflow:"hidden"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 28px",borderBottom:"1px solid #f3f4f6",background:"#f9fafb"}}>
-            <span style={{fontSize:14,fontWeight:600,color:"#6b7280"}}>블로그 운영 가이드라인</span>
+            <span style={{fontSize:15,fontWeight:600,color:"#6b7280"}}>블로그 운영 가이드라인</span>
             {editingGuide?(
               <div style={{display:"flex",gap:8}}>
-                <button onClick={()=>setEditingGuide(false)} style={{fontSize:13,color:"#6b7280",border:"1px solid #e5e7eb",padding:"5px 14px",borderRadius:8,background:"#fff",cursor:"pointer"}}>취소</button>
-                <button onClick={()=>{setGuidelineText(guideDraft);setEditingGuide(false);}} style={{fontSize:13,color:"#fff",background:BRAND,border:"none",padding:"5px 14px",borderRadius:8,fontWeight:600,cursor:"pointer"}}>저장</button>
+                <button onClick={()=>setEditingGuide(false)} style={{fontSize:15,color:"#6b7280",border:"1px solid #e5e7eb",padding:"5px 14px",borderRadius:8,background:"#fff",cursor:"pointer"}}>취소</button>
+                <button onClick={()=>{setGuidelineText(guideDraft);setEditingGuide(false);}} style={{fontSize:15,color:"#fff",background:BRAND,border:"none",padding:"5px 14px",borderRadius:8,fontWeight:600,cursor:"pointer"}}>저장</button>
               </div>
             ):(
-              <button onClick={()=>{setGuideDraft(guidelineText);setEditingGuide(true);}} style={{fontSize:13,color:"#6b7280",border:"1px solid #e5e7eb",padding:"5px 14px",borderRadius:8,background:"#fff",cursor:"pointer"}}>✏️ 편집</button>
+              <button onClick={()=>{setGuideDraft(guidelineText);setEditingGuide(true);}} style={{fontSize:15,color:"#6b7280",border:"1px solid #e5e7eb",padding:"5px 14px",borderRadius:8,background:"#fff",cursor:"pointer"}}>✏️ 편집</button>
             )}
           </div>
           {editingGuide?(
             <textarea value={guideDraft} onChange={e=>setGuideDraft(e.target.value)}
-              style={{width:"100%",padding:28,fontSize:14,color:"#374151",fontFamily:"monospace",lineHeight:1.7,outline:"none",border:"none",resize:"none",minHeight:"70vh"}}/>
+              style={{width:"100%",padding:28,fontSize:15,color:"#374151",fontFamily:"monospace",lineHeight:1.7,outline:"none",border:"none",resize:"none",minHeight:"70vh"}}/>
           ):(
             <div style={{padding:"0 36px 28px",overflowY:"auto",maxHeight:"75vh"}}>
               <GuidelineView content={guidelineText}/>
@@ -439,11 +442,11 @@ function App(){
               <div style={{marginBottom:14,position:"relative"}}>
                 <textarea value={monthMemos[selectedTab]||""} onChange={e=>setMonthMemos(p=>({...p,[selectedTab]:e.target.value}))}
                   placeholder="이달의 메모 (기획 방향, 공유 사항 등 자유롭게 작성)"
-                  style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:12,padding:"14px 90px 14px 18px",fontSize:14,color:"#374151",background:"#fff",resize:"none",outline:"none",minHeight:80,lineHeight:1.7}}/>
+                  style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:12,padding:"14px 90px 14px 18px",fontSize:15,color:"#374151",background:"#fff",resize:"none",outline:"none",minHeight:80,lineHeight:1.7}}/>
                 <div style={{position:"absolute",bottom:12,right:12,display:"flex",alignItems:"center",gap:8}}>
-                  {memoSaved[selectedTab]&&<span style={{fontSize:12,color:"#9ca3af"}}>저장됨 ✓</span>}
+                  {memoSaved[selectedTab]&&<span style={{fontSize:14,color:"#9ca3af"}}>저장됨 ✓</span>}
                   <button onClick={()=>saveMemo(selectedTab,monthMemos[selectedTab]||"")}
-                    style={{fontSize:13,color:"#fff",background:BRAND,border:"none",padding:"5px 14px",borderRadius:8,fontWeight:600,cursor:"pointer"}}>저장</button>
+                    style={{fontSize:15,color:"#fff",background:BRAND,border:"none",padding:"5px 14px",borderRadius:8,fontWeight:600,cursor:"pointer"}}>저장</button>
                 </div>
               </div>
             </>
@@ -453,23 +456,25 @@ function App(){
           <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8,marginBottom:16}}>
             {STATUS_OPTIONS.map(s=>(
               <div key={s} style={{borderRadius:8,padding:"10px 12px",textAlign:"center",...STATUS_STYLE[s]}}>
-                <div style={{fontSize:20,fontWeight:700}}>{totalByStatus(s)}</div>
-                <div style={{fontSize:13}}>{s}</div>
+                <div style={{fontSize:22,fontWeight:700}}>{totalByStatus(s)}</div>
+                <div style={{fontSize:15}}>{s}</div>
               </div>
             ))}
           </div>
 
-          {/* Filters */}
+          {/* Filters — 드롭다운 너비 통일 */}
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16,flexWrap:"wrap"}}>
             {isMonthTab&&<>
-              <select value={filterType} onChange={e=>setFilterType(e.target.value)} style={{fontSize:14,border:"1px solid #e5e7eb",borderRadius:8,padding:"7px 12px",background:"#fff",color:"#374151"}}>
+              <select value={filterType} onChange={e=>setFilterType(e.target.value)}
+                style={{fontSize:15,border:"1px solid #e5e7eb",borderRadius:8,padding:"7px 12px",background:"#fff",color:"#374151",width:DROPDOWN_W}}>
                 <option>전체</option>{TYPE_OPTIONS.map(t=><option key={t}>{t}</option>)}
               </select>
-              <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)} style={{fontSize:14,border:"1px solid #e5e7eb",borderRadius:8,padding:"7px 12px",background:"#fff",color:"#374151"}}>
+              <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}
+                style={{fontSize:15,border:"1px solid #e5e7eb",borderRadius:8,padding:"7px 12px",background:"#fff",color:"#374151",width:DROPDOWN_W}}>
                 <option>전체</option>{STATUS_OPTIONS.map(s=><option key={s}>{s}</option>)}
               </select>
             </>}
-            <button onClick={()=>setShowAddModal(true)} style={{marginLeft:"auto",fontSize:14,color:"#fff",background:BRAND,border:"none",padding:"7px 18px",borderRadius:8,fontWeight:600,cursor:"pointer"}}>+ 아티클 추가</button>
+            <button onClick={()=>setShowAddModal(true)} style={{marginLeft:"auto",fontSize:15,color:"#fff",background:BRAND,border:"none",padding:"7px 18px",borderRadius:8,fontWeight:600,cursor:"pointer"}}>+ 아티클 추가</button>
           </div>
 
           {isAllTab?(
@@ -481,33 +486,33 @@ function App(){
                 const typed=[...noMonth,...withMonth];
                 return(
                   <div key={type} style={{background:"#fff",borderRadius:12,border:"1px solid #e5e7eb",boxShadow:"0 1px 4px rgba(0,0,0,0.06)",overflow:"hidden"}}>
-                    <div style={{padding:"12px 18px",borderBottom:"1px solid #f3f4f6",background:type==="서비스 설명"?"#faf5ff":"#fff7ed",display:"flex",alignItems:"center",gap:8}}>
-                      <span style={{padding:"3px 10px",borderRadius:99,fontSize:13,fontWeight:600,...TYPE_STYLE[type]}}>{type}</span>
-                      <span style={{fontSize:13,color:"#9ca3af"}}>{typed.length}편</span>
-                      {noMonth.length>0&&<span style={{fontSize:12,color:"#9ca3af"}}>(미정 {noMonth.length}편 포함)</span>}
+                    <div style={{padding:"12px 18px",borderBottom:"1px solid #f3f4f6",background:type==="서비스 설명"?"#faf5ff":type==="페르소나"?"#fff7ed":"#f0f9ff",display:"flex",alignItems:"center",gap:8}}>
+                      <span style={{padding:"3px 10px",borderRadius:99,fontSize:15,fontWeight:600,...TYPE_STYLE[type]}}>{type}</span>
+                      <span style={{fontSize:15,color:"#9ca3af"}}>{typed.length}편</span>
+                      {noMonth.length>0&&<span style={{fontSize:14,color:"#9ca3af"}}>(미정 {noMonth.length}편 포함)</span>}
                     </div>
                     <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed"}}>
                       <colgroup><col style={{width:36}}/><col style={{width:46}}/><col/><col style={{width:110}}/></colgroup>
                       <thead>
                         <tr style={{background:"#f9fafb",borderBottom:"1px solid #f3f4f6"}}>
-                          {["No","월","제목","상태"].map(h=><th key={h} style={{textAlign:"center",padding:"9px 12px",fontSize:13,fontWeight:600,color:"#9ca3af",whiteSpace:"nowrap"}}>{h}</th>)}
+                          {["No","월","제목","상태"].map(h=><th key={h} style={{textAlign:"center",padding:"9px 12px",fontSize:15,fontWeight:600,color:"#9ca3af",whiteSpace:"nowrap"}}>{h}</th>)}
                         </tr>
                       </thead>
                       <tbody>
-                        {typed.length===0?<tr><td colSpan={4} style={{textAlign:"center",padding:36,fontSize:14,color:"#9ca3af"}}>아티클 없음</td></tr>
+                        {typed.length===0?<tr><td colSpan={4} style={{textAlign:"center",padding:36,fontSize:15,color:"#9ca3af"}}>아티클 없음</td></tr>
                         :typed.map((a,i)=>{
                           const isP=a.status==="🚀 발행";
                           return(
                             <tr key={a.id} style={{borderBottom:"1px solid #f9fafb",background:isP?"#f9fafb":a.noMonth?"#eff6ff":"#fff"}}>
-                              <td style={{padding:"9px 12px",fontSize:13,textAlign:"center",color:"#9ca3af"}}>{i+1}</td>
-                              <td style={{padding:"9px 12px",fontSize:13,textAlign:"center",color:isP?"#d1d5db":"#6b7280",whiteSpace:"nowrap"}}>{a.noMonth?<em style={{color:"#9ca3af"}}>미정</em>:MONTHS[a.month]}</td>
+                              <td style={{padding:"9px 12px",fontSize:15,textAlign:"center",color:"#9ca3af"}}>{i+1}</td>
+                              <td style={{padding:"9px 12px",fontSize:15,textAlign:"center",color:isP?"#d1d5db":"#6b7280",whiteSpace:"nowrap"}}>{a.noMonth?<em style={{color:"#9ca3af"}}>미정</em>:MONTHS[a.month]}</td>
                               <td style={{padding:"9px 12px"}}>
-                                {a.url?<a href={a.url} target="_blank" rel="noreferrer" style={{fontSize:13,fontWeight:500,color:isP?"#9ca3af":"#2563eb",textDecoration:"none"}}>{a.title}</a>
-                                :<span style={{fontSize:13,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>}
+                                {a.url?<a href={a.url} target="_blank" rel="noreferrer" style={{fontSize:15,fontWeight:500,color:isP?"#9ca3af":"#2563eb",textDecoration:"none"}}>{a.title}</a>
+                                :<span style={{fontSize:15,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>}
                               </td>
                               <td style={{padding:"9px 12px",textAlign:"center"}}>
                                 <select value={a.status} onChange={e=>{if(e.target.value==="🚀 발행"&&Object.values(a.checklist||{}).filter(Boolean).length<CHECKLIST_ITEMS.length){setBlockArticle(a);return;}update(a.id,"status",e.target.value);}}
-                                  style={{fontSize:13,borderRadius:99,padding:"3px 6px",border:"none",fontWeight:600,cursor:"pointer",width:"100%",...STATUS_STYLE[a.status]}}>
+                                  style={{fontSize:15,borderRadius:99,padding:"3px 6px",border:"none",fontWeight:600,cursor:"pointer",width:"100%",...STATUS_STYLE[a.status]}}>
                                   {STATUS_OPTIONS.map(s=><option key={s}>{s}</option>)}
                                 </select>
                               </td>
@@ -523,17 +528,26 @@ function App(){
           ):(
             <div style={{background:"#fff",borderRadius:12,border:"1px solid #e5e7eb",boxShadow:"0 1px 4px rgba(0,0,0,0.06)",overflow:"hidden"}}>
               <div style={{overflowX:"auto"}}>
+                {/* 아티클 제목 열 절반으로 줄이고, 키워드·메모 늘림 */}
                 <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed"}}>
-                  <colgroup><col style={{width:100}}/><col style={{width:100}}/><col/><col style={{width:110}}/><col style={{width:115}}/><col style={{width:110}}/><col style={{width:52}}/></colgroup>
+                  <colgroup>
+                    <col style={{width:100}}/>  {/* 발행일 */}
+                    <col style={{width:110}}/>  {/* 유형 */}
+                    <col style={{width:"22%"}}/> {/* 아티클 제목 — 기존 대비 절반 */}
+                    <col style={{width:"18%"}}/> {/* 핵심 키워드 — 살짝 확대 */}
+                    <col style={{width:120}}/>  {/* 진행 상태 */}
+                    <col style={{width:"18%"}}/> {/* 메모 — 살짝 확대 */}
+                    <col style={{width:52}}/>   {/* 액션 */}
+                  </colgroup>
                   <thead>
                     <tr style={{background:"#f9fafb",borderBottom:"1px solid #e5e7eb"}}>
                       {["발행일","유형","아티클 제목","핵심 키워드","진행 상태","메모",""].map((h,i)=>(
-                        <th key={i} style={{textAlign:"center",padding:"13px 12px",fontSize:13,fontWeight:600,color:"#9ca3af",whiteSpace:"nowrap"}}>{h}</th>
+                        <th key={i} style={{textAlign:"center",padding:"13px 12px",fontSize:15,fontWeight:600,color:"#9ca3af",whiteSpace:"nowrap"}}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {sorted.length===0?<tr><td colSpan={7} style={{textAlign:"center",padding:48,color:"#9ca3af",fontSize:15}}>아티클이 없습니다.</td></tr>
+                    {sorted.length===0?<tr><td colSpan={7} style={{textAlign:"center",padding:48,color:"#9ca3af",fontSize:17}}>아티클이 없습니다.</td></tr>
                     :sorted.map(a=>{
                       const isP=a.status==="🚀 발행";
                       const doneCount=Object.values(a.checklist||{}).filter(Boolean).length;
@@ -541,37 +555,37 @@ function App(){
                       return(
                         <tr key={a.id} style={{borderBottom:"1px solid #f3f4f6",background:isP?"#f9fafb":"#fff"}}>
                           <td style={{padding:"11px 12px",textAlign:"center",whiteSpace:"nowrap"}}>
-                            {editingId===a.id?<input type="date" value={a.publishDate} onChange={e=>update(a.id,"publishDate",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:13,width:"100%"}}/>
-                            :<span style={{fontSize:13,color:isP?"#9ca3af":"#4b5563"}}>{a.publishDate||"-"}</span>}
+                            {editingId===a.id?<input type="date" value={a.publishDate} onChange={e=>update(a.id,"publishDate",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}}/>
+                            :<span style={{fontSize:15,color:isP?"#9ca3af":"#4b5563"}}>{a.publishDate||"-"}</span>}
                           </td>
                           <td style={{padding:"11px 12px",textAlign:"center"}}>
-                            {editingId===a.id?<select value={a.type} onChange={e=>update(a.id,"type",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:13,width:"100%"}}>{TYPE_OPTIONS.map(t=><option key={t}>{t}</option>)}</select>
-                            :<span style={{display:"inline-block",padding:"3px 10px",borderRadius:99,fontSize:13,fontWeight:500,whiteSpace:"nowrap",...(isP?{background:"#f3f4f6",color:"#9ca3af"}:TYPE_STYLE[a.type])}}>{a.type}</span>}
+                            {editingId===a.id?<select value={a.type} onChange={e=>update(a.id,"type",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}}>{TYPE_OPTIONS.map(t=><option key={t}>{t}</option>)}</select>
+                            :<span style={{display:"inline-block",padding:"3px 10px",borderRadius:99,fontSize:15,fontWeight:500,whiteSpace:"nowrap",...(isP?{background:"#f3f4f6",color:"#9ca3af"}:TYPE_STYLE[a.type])}}>{a.type}</span>}
                           </td>
                           <td style={{padding:"11px 12px"}}>
                             <div style={{display:"flex",alignItems:"center",gap:6}}>
                               {editingId===a.id?(
                                 <div style={{display:"flex",flexDirection:"column",gap:4,width:"100%"}}>
-                                  <input value={a.title} onChange={e=>update(a.id,"title",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:13,width:"100%"}}/>
-                                  <input value={a.url} onChange={e=>update(a.id,"url",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:13,width:"100%"}} placeholder="URL"/>
+                                  <input value={a.title} onChange={e=>update(a.id,"title",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}}/>
+                                  <input value={a.url} onChange={e=>update(a.id,"url",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}} placeholder="URL"/>
                                 </div>
                               ):urlEditId===a.id?(
                                 <div style={{display:"flex",flexDirection:"column",gap:4,width:"100%"}}>
-                                  <span style={{fontSize:13,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>
+                                  <span style={{fontSize:15,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>
                                   <div style={{display:"flex",gap:4,alignItems:"center"}}>
                                     <input value={urlInput} onChange={e=>setUrlInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveUrl(a.id)} autoFocus placeholder="https://..."
-                                      style={{border:`1px solid ${BRAND}`,borderRadius:4,padding:"3px 8px",fontSize:13,flex:1,outline:"none"}}/>
-                                    <button onClick={()=>saveUrl(a.id)} style={{fontSize:13,color:"#fff",background:BRAND,border:"none",borderRadius:4,padding:"3px 10px",cursor:"pointer"}}>저장</button>
-                                    <button onClick={()=>setUrlEditId(null)} style={{fontSize:13,color:"#9ca3af",background:"none",border:"none",cursor:"pointer"}}>✕</button>
+                                      style={{border:`1px solid ${BRAND}`,borderRadius:4,padding:"3px 8px",fontSize:15,flex:1,outline:"none"}}/>
+                                    <button onClick={()=>saveUrl(a.id)} style={{fontSize:15,color:"#fff",background:BRAND,border:"none",borderRadius:4,padding:"3px 10px",cursor:"pointer"}}>저장</button>
+                                    <button onClick={()=>setUrlEditId(null)} style={{fontSize:15,color:"#9ca3af",background:"none",border:"none",cursor:"pointer"}}>✕</button>
                                   </div>
                                 </div>
                               ):(
                                 <>
-                                  {a.url?<a href={a.url} target="_blank" rel="noreferrer" style={{fontSize:13,fontWeight:500,color:isP?"#9ca3af":"#111827",textDecoration:"none"}}>{a.title}</a>
-                                  :<span style={{fontSize:13,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>}
-                                  <button onClick={()=>{setUrlEditId(a.id);setUrlInput(a.url||"");}} style={{fontSize:13,color:"#d1d5db",background:"none",border:"none",cursor:"pointer",flexShrink:0}}>{a.url?"🔗":"+ 🔗"}</button>
+                                  {a.url?<a href={a.url} target="_blank" rel="noreferrer" style={{fontSize:15,fontWeight:500,color:isP?"#9ca3af":"#111827",textDecoration:"none"}}>{a.title}</a>
+                                  :<span style={{fontSize:15,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>}
+                                  <button onClick={()=>{setUrlEditId(a.id);setUrlInput(a.url||"");}} style={{fontSize:15,color:"#d1d5db",background:"none",border:"none",cursor:"pointer",flexShrink:0}}>{a.url?"🔗":"+ 🔗"}</button>
                                   <button onClick={()=>setChecklistArticle(a)}
-                                    style={{fontSize:12,padding:"3px 8px",borderRadius:99,border:`1px solid ${allDone?"#86efac":doneCount>0?"#93c5fd":"#e5e7eb"}`,
+                                    style={{fontSize:14,padding:"3px 8px",borderRadius:99,border:`1px solid ${allDone?"#86efac":doneCount>0?"#93c5fd":"#e5e7eb"}`,
                                       background:allDone?"#f0fdf4":doneCount>0?"#eff6ff":"#f9fafb",
                                       color:allDone?"#166534":doneCount>0?"#1d4ed8":"#9ca3af",cursor:"pointer",flexShrink:0,fontWeight:500}}>
                                     {allDone?"✅":doneCount>0?`☑ ${doneCount}/${CHECKLIST_ITEMS.length}`:"☑ 체크"}
@@ -581,22 +595,22 @@ function App(){
                             </div>
                           </td>
                           <td style={{padding:"11px 12px"}}>
-                            {editingId===a.id?<input value={a.keyword} onChange={e=>update(a.id,"keyword",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:13,width:"100%"}}/>
-                            :<span style={{fontSize:13,color:isP?"#9ca3af":"#6b7280"}}>{a.keyword}</span>}
+                            {editingId===a.id?<input value={a.keyword} onChange={e=>update(a.id,"keyword",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}}/>
+                            :<span style={{fontSize:15,color:isP?"#9ca3af":"#6b7280"}}>{a.keyword}</span>}
                           </td>
                           <td style={{padding:"11px 12px",textAlign:"center",whiteSpace:"nowrap"}}>
                             <select value={a.status} onChange={e=>handleStatusChange(a,e.target.value)}
-                              style={{fontSize:13,borderRadius:99,padding:"5px 10px",border:"none",fontWeight:600,cursor:"pointer",...STATUS_STYLE[a.status]}}>
+                              style={{fontSize:15,borderRadius:99,padding:"5px 10px",border:"none",fontWeight:600,cursor:"pointer",...STATUS_STYLE[a.status]}}>
                               {STATUS_OPTIONS.map(s=><option key={s}>{s}</option>)}
                             </select>
                           </td>
                           <td style={{padding:"11px 12px"}}>
-                            {editingId===a.id?<input value={a.memo} onChange={e=>update(a.id,"memo",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:13,width:"100%"}} placeholder="메모"/>
-                            :<span style={{fontSize:13,color:"#9ca3af"}}>{a.memo||"-"}</span>}
+                            {editingId===a.id?<input value={a.memo} onChange={e=>update(a.id,"memo",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}} placeholder="메모"/>
+                            :<span style={{fontSize:15,color:"#9ca3af"}}>{a.memo||"-"}</span>}
                           </td>
                           <td style={{padding:"11px 12px",textAlign:"center",whiteSpace:"nowrap"}}>
-                            <button onClick={()=>setEditingId(editingId===a.id?null:a.id)} style={{color:"#d1d5db",background:"none",border:"none",cursor:"pointer",fontSize:14,padding:"0 3px"}}>{editingId===a.id?"💾":"✏️"}</button>
-                            <button onClick={()=>deleteArticle(a.id)} style={{color:"#d1d5db",background:"none",border:"none",cursor:"pointer",fontSize:14,padding:"0 3px",marginLeft:4}}>✕</button>
+                            <button onClick={()=>setEditingId(editingId===a.id?null:a.id)} style={{color:"#d1d5db",background:"none",border:"none",cursor:"pointer",fontSize:16,padding:"0 3px"}}>{editingId===a.id?"💾":"✏️"}</button>
+                            <button onClick={()=>deleteArticle(a.id)} style={{color:"#d1d5db",background:"none",border:"none",cursor:"pointer",fontSize:16,padding:"0 3px",marginLeft:4}}>✕</button>
                           </td>
                         </tr>
                       );
@@ -615,16 +629,16 @@ function App(){
       {showAddModal&&(
         <div onClick={()=>setShowAddModal(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:50,padding:16}}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:16,boxShadow:"0 20px 60px rgba(0,0,0,0.15)",width:"100%",maxWidth:460,padding:28}}>
-            <h2 style={{fontSize:18,fontWeight:700,color:"#111827",marginBottom:20}}>아티클 추가 {isMonthTab&&`— ${MONTHS[selectedTab]}`}</h2>
+            <h2 style={{fontSize:20,fontWeight:700,color:"#111827",marginBottom:20}}>아티클 추가 {isMonthTab&&`— ${MONTHS[selectedTab]}`}</h2>
             <div style={{display:"flex",flexDirection:"column",gap:14}}>
               <div>
-                <label style={{fontSize:13,color:"#9ca3af",display:"block",marginBottom:5}}>발행 월</label>
+                <label style={{fontSize:15,color:"#9ca3af",display:"block",marginBottom:5}}>발행 월</label>
                 <div style={{display:"flex",alignItems:"center",gap:12}}>
                   <select disabled={newArticle.noMonth} value={newArticle.noMonth?"":(newArticle.month??(isMonthTab?selectedTab:0))} onChange={e=>setNewArticle(p=>({...p,month:Number(e.target.value)}))}
-                    style={{flex:1,border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:14,background:newArticle.noMonth?"#f9fafb":"#fff",color:newArticle.noMonth?"#9ca3af":"#374151"}}>
+                    style={{flex:1,border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15,background:newArticle.noMonth?"#f9fafb":"#fff",color:newArticle.noMonth?"#9ca3af":"#374151"}}>
                     {MONTHS.map((m,i)=><option key={i} value={i}>{m}</option>)}
                   </select>
-                  <label style={{display:"flex",alignItems:"center",gap:6,fontSize:14,color:"#6b7280",cursor:"pointer",whiteSpace:"nowrap"}}>
+                  <label style={{display:"flex",alignItems:"center",gap:6,fontSize:15,color:"#6b7280",cursor:"pointer",whiteSpace:"nowrap"}}>
                     <input type="checkbox" checked={newArticle.noMonth} onChange={e=>setNewArticle(p=>({...p,noMonth:e.target.checked,month:e.target.checked?null:(isMonthTab?selectedTab:0)}))}/>
                     월 미정
                   </label>
@@ -632,27 +646,27 @@ function App(){
               </div>
               {[{label:"발행 예정일",field:"publishDate",inputType:"date"},{label:"아티클 제목",field:"title",ph:"제목을 입력하세요"},{label:"URL",field:"url",ph:"https://"},{label:"핵심 키워드",field:"keyword",ph:"ex. 보험, 드라이브"},{label:"메모",field:"memo",ph:"참고사항 등"}].map(({label,field,inputType,ph})=>(
                 <div key={field}>
-                  <label style={{fontSize:13,color:"#9ca3af",display:"block",marginBottom:5}}>{label}</label>
+                  <label style={{fontSize:15,color:"#9ca3af",display:"block",marginBottom:5}}>{label}</label>
                   <input type={inputType||"text"} disabled={field==="publishDate"&&newArticle.noMonth} value={newArticle[field]} onChange={e=>setNewArticle(p=>({...p,[field]:e.target.value}))} placeholder={ph}
-                    style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:14,background:(field==="publishDate"&&newArticle.noMonth)?"#f9fafb":"#fff"}}/>
+                    style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15,background:(field==="publishDate"&&newArticle.noMonth)?"#f9fafb":"#fff"}}/>
                 </div>
               ))}
               <div>
-                <label style={{fontSize:13,color:"#9ca3af",display:"block",marginBottom:5}}>유형</label>
-                <select value={newArticle.type} onChange={e=>setNewArticle(p=>({...p,type:e.target.value}))} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:14}}>
+                <label style={{fontSize:15,color:"#9ca3af",display:"block",marginBottom:5}}>유형</label>
+                <select value={newArticle.type} onChange={e=>setNewArticle(p=>({...p,type:e.target.value}))} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15}}>
                   {TYPE_OPTIONS.map(t=><option key={t}>{t}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{fontSize:13,color:"#9ca3af",display:"block",marginBottom:5}}>진행 상태</label>
-                <select value={newArticle.status} onChange={e=>setNewArticle(p=>({...p,status:e.target.value}))} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:14}}>
+                <label style={{fontSize:15,color:"#9ca3af",display:"block",marginBottom:5}}>진행 상태</label>
+                <select value={newArticle.status} onChange={e=>setNewArticle(p=>({...p,status:e.target.value}))} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15}}>
                   {STATUS_OPTIONS.filter(s=>s!=="🚀 발행").map(s=><option key={s}>{s}</option>)}
                 </select>
               </div>
             </div>
             <div style={{display:"flex",gap:8,marginTop:24}}>
-              <button onClick={()=>setShowAddModal(false)} style={{flex:1,border:"1px solid #e5e7eb",borderRadius:8,padding:"11px 0",fontSize:14,color:"#6b7280",background:"#fff",cursor:"pointer"}}>취소</button>
-              <button onClick={addArticle} disabled={!newArticle.title} style={{flex:1,background:newArticle.title?BRAND:"#9ca3af",color:"#fff",border:"none",borderRadius:8,padding:"11px 0",fontSize:14,fontWeight:600,cursor:newArticle.title?"pointer":"not-allowed"}}>추가하기</button>
+              <button onClick={()=>setShowAddModal(false)} style={{flex:1,border:"1px solid #e5e7eb",borderRadius:8,padding:"11px 0",fontSize:15,color:"#6b7280",background:"#fff",cursor:"pointer"}}>취소</button>
+              <button onClick={addArticle} disabled={!newArticle.title} style={{flex:1,background:newArticle.title?BRAND:"#9ca3af",color:"#fff",border:"none",borderRadius:8,padding:"11px 0",fontSize:15,fontWeight:600,cursor:newArticle.title?"pointer":"not-allowed"}}>추가하기</button>
             </div>
           </div>
         </div>
@@ -669,14 +683,14 @@ function IssueTag({month,issues,onSave}){
     <div style={{display:"flex",alignItems:"center",gap:8}}>
       <input value={input} onChange={e=>setInput(e.target.value)} autoFocus
         onKeyDown={e=>{if(e.key==="Enter"){onSave(month,input);setEditing(false);}}}
-        style={{fontSize:13,border:"1px solid #f59e0b",borderRadius:99,padding:"5px 14px",background:"#fffbeb",color:"#92400e",outline:"none",width:240}}/>
-      <button onClick={()=>{onSave(month,input);setEditing(false);}} style={{fontSize:13,color:"#fff",background:BRAND,border:"none",padding:"5px 14px",borderRadius:99,fontWeight:600,cursor:"pointer"}}>저장</button>
-      <button onClick={()=>setEditing(false)} style={{fontSize:13,color:"#6b7280",border:"1px solid #e5e7eb",padding:"5px 10px",borderRadius:99,background:"#fff",cursor:"pointer"}}>취소</button>
+        style={{fontSize:15,border:"1px solid #f59e0b",borderRadius:99,padding:"5px 14px",background:"#fffbeb",color:"#92400e",outline:"none",width:240}}/>
+      <button onClick={()=>{onSave(month,input);setEditing(false);}} style={{fontSize:15,color:"#fff",background:BRAND,border:"none",padding:"5px 14px",borderRadius:99,fontWeight:600,cursor:"pointer"}}>저장</button>
+      <button onClick={()=>setEditing(false)} style={{fontSize:15,color:"#6b7280",border:"1px solid #e5e7eb",padding:"5px 10px",borderRadius:99,background:"#fff",cursor:"pointer"}}>취소</button>
     </div>
   );
   return(
     <button onClick={()=>{setInput(issues[month]);setEditing(true);}}
-      style={{fontSize:13,background:"#fffbeb",border:"1px solid #fde68a",color:"#92400e",padding:"5px 14px",borderRadius:99,fontWeight:500,cursor:"pointer",display:"flex",alignItems:"center",gap:6}}>
+      style={{fontSize:15,background:"#fffbeb",border:"1px solid #fde68a",color:"#92400e",padding:"5px 14px",borderRadius:99,fontWeight:500,cursor:"pointer",display:"flex",alignItems:"center",gap:6}}>
       <span>이달의 이슈: {issues[month]}</span><span>✏️</span>
     </button>
   );
