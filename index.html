@@ -533,10 +533,10 @@ function App(){
                   <colgroup>
                     <col style={{width:100}}/>  {/* 발행일 */}
                     <col style={{width:110}}/>  {/* 유형 */}
-                    <col style={{width:"22%"}}/> {/* 아티클 제목 — 기존 대비 절반 */}
-                    <col style={{width:"18%"}}/> {/* 핵심 키워드 — 살짝 확대 */}
+                    <col style={{width:"33%"}}/> {/* 아티클 제목 — 50% 확대 */}
+                    <col style={{width:"12%"}}/> {/* 핵심 키워드 — 축소 */}
                     <col style={{width:120}}/>  {/* 진행 상태 */}
-                    <col style={{width:"18%"}}/> {/* 메모 — 살짝 확대 */}
+                    <col style={{width:"18%"}}/> {/* 메모 */}
                     <col style={{width:52}}/>   {/* 액션 */}
                   </colgroup>
                   <thead>
@@ -556,7 +556,7 @@ function App(){
                         <tr key={a.id} style={{borderBottom:"1px solid #f3f4f6",background:isP?"#f9fafb":"#fff"}}>
                           <td style={{padding:"11px 12px",textAlign:"center",whiteSpace:"nowrap"}}>
                             {editingId===a.id?<input type="date" value={a.publishDate} onChange={e=>update(a.id,"publishDate",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}}/>
-                            :<span style={{fontSize:15,color:isP?"#9ca3af":"#4b5563"}}>{a.publishDate||"-"}</span>}
+                            :<span style={{fontSize:15,color:isP?"#9ca3af":"#4b5563"}}>{a.publishDate?a.publishDate.slice(0,10):"-"}</span>}
                           </td>
                           <td style={{padding:"11px 12px",textAlign:"center"}}>
                             {editingId===a.id?<select value={a.type} onChange={e=>update(a.id,"type",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}}>{TYPE_OPTIONS.map(t=><option key={t}>{t}</option>)}</select>
