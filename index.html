@@ -3,465 +3,686 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>쏘카 블로그 운영 대시보드</title>
+<title>쏘카 블로그 운영 캘린더</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#F0F4F8;min-height:100vh;color:#111}
-  button{cursor:pointer;font-family:inherit}
-  .header{background:#fff;border-bottom:1px solid #E5E7EB;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
-  .logo{width:36px;height:36px;background:#00B4D8;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px}
-  .header-info{margin-left:12px}
-  .header-title{font-weight:800;font-size:17px}
-  .header-sub{font-size:12px;color:#9CA3AF;margin-top:2px}
-  .btn-primary{background:#00B4D8;color:#fff;border:none;border-radius:10px;padding:9px 18px;font-weight:700;font-size:14px}
-  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 28px 0}
-  .card{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-  .card-label{font-size:12px;color:#9CA3AF;font-weight:600}
-  .card-value{font-size:28px;font-weight:800;margin:4px 0}
-  .card-sub{font-size:11px;color:#9CA3AF}
-  .tabs{display:flex;gap:6px;padding:20px 28px 0}
-  .tab{padding:8px 18px;border-radius:10px;border:none;background:#fff;color:#6B7280;font-weight:700;font-size:13px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-  .tab.active{background:#00B4D8;color:#fff}
-  .content{padding:16px 28px 40px}
-  .panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-  .filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
-  .filter-btn{padding:5px 14px;border-radius:20px;border:1px solid #E5E7EB;background:#fff;color:#6B7280;font-size:13px;font-weight:600}
-  .filter-btn.active{background:#00B4D8;color:#fff;border-color:#00B4D8}
-  select.fsel{padding:5px 12px;border:1px solid #E5E7EB;border-radius:20px;font-size:13px;color:#374151;font-family:inherit;margin-left:auto}
-  table{width:100%;border-collapse:collapse}
-  th{text-align:left;padding:8px 10px;font-size:12px;color:#9CA3AF;font-weight:700;border-bottom:2px solid #F3F4F6}
-  td{padding:12px 10px;border-bottom:1px solid #F9FAFB;font-size:14px;vertical-align:top}
-  .td-title{font-weight:600}
-  .td-memo{font-size:11px;color:#9CA3AF;margin-top:2px}
-  .btn-sm{font-size:12px;padding:4px 10px;border-radius:6px}
-  .btn-edit{border:1px solid #E5E7EB;background:#fff}
-  .btn-del{border:1px solid #FEE2E2;background:#FFF5F5;color:#EF4444}
-  .badge{padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;display:inline-block;white-space:nowrap}
-  .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-  .kcol{background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-  .kcol-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-  .kcard{background:#F9FAFB;border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;border-left:3px solid #ccc}
-  .kcard-title{font-size:13px;font-weight:700;margin-bottom:6px}
-  .kcard-date{font-size:11px;color:#9CA3AF;margin-top:6px}
-  .cal-wrap{display:grid;grid-template-columns:1fr 300px;gap:16px}
-  .cal-panel{background:#fff;border-radius:14px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-  .cal-nav button{background:none;border:none;font-size:20px;color:#6B7280;padding:0 8px;line-height:1}
-  .cal-nav span{font-weight:700;font-size:15px}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
-  .cal-dname{text-align:center;font-size:11px;font-weight:700;color:#9CA3AF;padding:4px 0}
-  .cal-cell{min-height:56px;background:#F9FAFB;border-radius:6px;padding:4px 3px;border:1px solid #F3F4F6}
-  .cal-cell.today{background:#E0F7FA;border:2px solid #00B4D8}
-  .cal-num{font-size:11px;font-weight:500;color:#374151;margin-bottom:2px}
-  .cal-cell.today .cal-num{color:#00B4D8;font-weight:800}
-  .cal-ev{font-size:9px;color:#fff;border-radius:3px;padding:1px 3px;margin-bottom:1px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-  .upcoming{padding:12px 0;border-bottom:1px solid #F3F4F6}
-  .upcoming-title{font-size:13px;font-weight:700;margin-bottom:6px}
-  .upcoming-date{font-size:12px;color:#6B7280;margin-top:4px}
-  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .rank-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F3F4F6}
-  .rank-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
-  .rank-views{font-size:15px;font-weight:800;color:#00B4D8;margin-left:auto}
-  .bar-wrap{background:#F3F4F6;border-radius:8px;height:8px;overflow:hidden;margin:6px 0 4px}
-  .bar{height:100%;border-radius:8px}
-  .goal-box{margin-top:16px;padding:14px 16px;background:#F0F9FF;border-radius:10px}
-  .goal-title{font-size:13px;font-weight:700;color:#00B4D8;margin-bottom:4px}
-  .goal-text{font-size:12px;color:#6B7280;line-height:1.8}
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center}
-  .modal{background:#fff;border-radius:16px;padding:28px;width:480px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,.18)}
-  .modal h3{margin-bottom:20px;font-size:18px;font-weight:700}
-  .fg{margin-bottom:14px}
-  .fg label{font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px}
-  .fg input,.fg select,.fg textarea{width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:14px;font-family:inherit}
-  .fg textarea{resize:vertical}
-  .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
-  .btn-cancel{padding:8px 20px;border-radius:8px;border:1px solid #D1D5DB;background:#fff;font-size:14px}
-  .btn-save{padding:8px 20px;border-radius:8px;border:none;background:#00B4D8;color:#fff;font-size:14px;font-weight:700}
-  .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1F2937;color:#fff;padding:10px 22px;border-radius:10px;font-size:14px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
-  .toast.show{opacity:1}
-  .loading{text-align:center;padding:60px;color:#9CA3AF;font-size:15px}
-  .empty{text-align:center;padding:40px;color:#9CA3AF;font-size:14px}
-  @media(max-width:900px){
-    .summary{grid-template-columns:repeat(2,1fr)}
-    .kanban{grid-template-columns:repeat(2,1fr)}
-    .cal-wrap,.stats-grid{grid-template-columns:1fr}
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif; background: #f9fafb; font-size: 15px; }
+select { appearance: auto; }
+textarea, input { font-family: inherit; }
+pre { white-space: pre-wrap; word-break: break-all; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
 </style>
 </head>
 <body>
-
-<!-- ====== 여기에 Apps Script 웹앱 URL을 붙여넣으세요 ====== -->
-<script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxp9V2kzUpPHoZHRwYaj9aW3HcRegQoswR_Dw2PTvCaFl64O6hUvW0ezuklnMmwPiKp9Q/exec";
-</script>
-<!-- ===================================================== -->
-
-<div class="header">
-  <div style="display:flex;align-items:center">
-    <div class="logo">S</div>
-    <div class="header-info">
-      <div class="header-title">쏘카 블로그 운영 대시보드</div>
-      <div class="header-sub">주 2회 발행 · 서비스 이해 + 이용 케이스</div>
-    </div>
-  </div>
-  <button class="btn-primary" onclick="openModal(null)">+ 새 아이템</button>
-</div>
-
-<div class="summary" id="summary"></div>
-
-<div class="tabs" id="tabs">
-  <button class="tab active" onclick="setTab('pool',this)">아이템 풀</button>
-  <button class="tab" onclick="setTab('kanban',this)">상태 보드</button>
-  <button class="tab" onclick="setTab('calendar',this)">발행 캘린더</button>
-  <button class="tab" onclick="setTab('stats',this)">성과 트래킹</button>
-</div>
-
-<div class="content" id="content"><div class="loading">데이터 불러오는 중...</div></div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-// ── 설정 ──────────────────────────────────────────
-const CATS = {
-  understand: { label:"서비스 이해", color:"#00B4D8", bg:"#E0F7FA" },
-  usecase:    { label:"이용 케이스", color:"#F97316", bg:"#FFF3E0" }
+<div id="root"></div>
+<script type="text/babel">
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxmgMSjI1ElXohP5n8kpD4VMt0FCM9D_VHx3nqgz80QUhYYlNginmoPMDs0ZN8AqnWN/exec";
+const BRAND = "#0078ff";
+const STATUS_OPTIONS = ["🗂 기획","✏️ 작성","🔍 검수","🚀 발행","⏸ 보류"];
+const TYPE_OPTIONS = ["서비스 설명","페르소나"];
+const STATUS_STYLE = {
+  "🗂 기획": {background:"#f3f4f6",color:"#374151"},
+  "✏️ 작성": {background:"#dbeafe",color:"#1d4ed8"},
+  "🔍 검수": {background:"#fef9c3",color:"#854d0e"},
+  "🚀 발행": {background:"#dcfce7",color:"#166534"},
+  "⏸ 보류": {background:"#fee2e2",color:"#dc2626"},
 };
-const STATUSES = ["기획","작성","검토","발행"];
-const ST_COLORS = {
-  기획: { bg:"#F3F4F6", text:"#6B7280" },
-  작성: { bg:"#DBEAFE", text:"#1D4ED8" },
-  검토: { bg:"#FEF3C7", text:"#B45309" },
-  발행: { bg:"#D1FAE5", text:"#065F46" }
+const TYPE_STYLE = {
+  "서비스 설명": {background:"#f3e8ff",color:"#7e22ce"},
+  "페르소나":    {background:"#ffedd5",color:"#c2410c"},
 };
+const MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+const DEFAULT_ISSUES = {
+  0:"🎊 신년·설 연휴",1:"💝 발렌타인",2:"🌸 봄·졸업·입학",3:"🌼 봄나들이",
+  4:"🏖 황금연휴·어린이날",5:"☀️ 여름 휴가 시즌",6:"🌊 여름 성수기",7:"🎒 여행 시즌",
+  8:"🍂 추석·가을",9:"🍁 단풍·캠핑",10:"❄️ 수능·겨울 준비",11:"🎄 연말·크리스마스"
+};
+const CHECKLIST_ITEMS = [
+  {id:"c1",label:"제목이 핵심 키워드를 포함하고 있다"},
+  {id:"c2",label:"본문 내 서비스명·기능명 표기가 공식 명칭과 일치한다"},
+  {id:"c3",label:"가격·정책 등 수치 정보를 최신 기준으로 확인했다"},
+  {id:"c4",label:"오탈자·비문 검수를 완료했다"},
+  {id:"c5",label:"문단 길이가 3~5줄 이내로 적절히 나뉘어 있다"},
+  {id:"c6",label:"소제목(H2/H3)이 2개 이상 포함되어 있다"},
+  {id:"c7",label:"메타 디스크립션(요약 문장)을 작성했다"},
+  {id:"c8",label:"이미지 alt 텍스트를 입력했다"},
+  {id:"c9",label:"CTA(쏘카 앱 이동 링크 등)가 본문 내 삽입되어 있다"},
+  {id:"c10",label:"내부 링크(관련 아티클)를 1개 이상 연결했다"},
+];
+const DEFAULT_GUIDELINE = `# 쏘카 블로그 운영 가이드라인
 
-// ── 상태 ──────────────────────────────────────────
-let items = [];
-let curTab = "pool";
-let filterCat = "all";
-let filterStatus = "all";
-let calYear, calMonth;
-const today = new Date();
-calYear = today.getFullYear();
-calMonth = today.getMonth();
+> 이 문서는 쏘카 기업 블로그의 콘텐츠 품질을 일관되게 유지하기 위한 작성 기준입니다.
+> 아티클 기획부터 발행까지 전 과정에서 참고해 주세요.
 
-// ── API ──────────────────────────────────────────
-async function api(action, body={}) {
-  if (action === "getAll") {
-    const res = await fetch(`${API_URL}?action=getAll`);
-    return res.json();
-  }
-  const res = await fetch(API_URL, {
-    method:"POST", body: JSON.stringify({action,...body})
-  });
+---
+
+## 1. 문체 · 톤앤매너
+
+**기본 원칙: 친구처럼 설명하고, 전문가처럼 정리한다**
+
+쏘카 블로그의 독자는 설명서를 읽으러 오는 게 아니에요. "나한테 필요한 건지, 얼마나 편한 건지"를 빠르게 파악하고 싶어서 읽습니다. 그러니 복잡한 내용도 친한 친구가 카톡으로 설명해주듯 쉽고 간결하게, 하지만 핵심 정보는 빠짐없이 담아야 해요. 위트는 독자가 계속 읽게 만드는 동력이지, 정보를 희석하는 도구가 아닙니다.
+
+**해야 할 것**
+- 문장은 짧게. 한 문장에 하나의 메시지만 담는다.
+- 독자를 맥락에 맞는 호칭으로 부른다. (ex. 쏘카 회원이라면, 자주 장거리를 운전하신다면)
+- 어려운 용어는 괄호 안에 간단히 풀어 쓴다. (ex. 면책금(사고 시 본인 부담금))
+- 능동형 문장을 쓴다. (~됩니다 → ~해요 / ~입니다)
+
+**하지 말 것**
+- 과장 표현 금지: "압도적", "혁신적", "세상에서 가장" 등
+- 경쟁사 직접 언급 금지
+- 단정적 법률·세금·보험 해석 금지 (반드시 "확인이 필요합니다" 표현 병기)
+- 줄임말·은어 남용 금지 (맥락상 자연스럽지 않은 경우)
+
+---
+
+## 2. 아티클 구성 구조
+
+### 서비스 설명 아티클
+\`\`\`
+[제목] 핵심 키워드 포함, 30자 이내
+[리드 문장] 독자의 페인포인트 1~2문장으로 제시
+[본문]
+  - H2 소제목 2~4개로 내용 구분
+  - 각 섹션 3~5문단
+  - 필요 시 표·리스트 활용
+[CTA] 쏘카 앱 이동 또는 관련 서비스 링크
+\`\`\`
+
+### 페르소나(유즈 케이스) 아티클
+\`\`\`
+[제목] 상황 + 쏘카 연결 (ex. "예비군 훈련 가는 날, 쏘카 쓰는 이유")
+[리드 문장] 해당 상황을 겪는 독자 공감 유도
+[본문]
+  - 상황 묘사 → 문제 제기 → 쏘카 해결책 순서
+  - 실제 이용 흐름(예약→이용→반납) 자연스럽게 녹이기
+[CTA] 해당 상황에 맞는 쏘카 서비스 바로가기
+\`\`\`
+
+**공통 포맷 원칙**
+- 문단 길이: 3~5줄 이내
+- 소제목: H2 필수, 필요 시 H3 추가
+- 본문 권장 분량: 800~1,500자
+
+---
+
+## 3. 팩트 확인 절차
+
+**Step 1. 서비스 정보 확인**
+쏘카 앱 또는 공식 홈페이지에서 직접 확인합니다.
+- 요금·할인 정책, 존(Zone) 위치, 차종 정보 등은 반드시 최신 기준으로 작성
+
+**Step 2. 수치·통계 출처 명시**
+외부 데이터를 인용할 경우, 출처와 기준 연도를 반드시 병기합니다.
+(ex. "2024년 국토교통부 통계 기준")
+
+**Step 3. 법률·보험 관련 내용**
+보험 약관, 법적 의무 등 민감한 내용은 단독 판단하지 않고 관련 부서 검토를 거칩니다.
+
+**Step 4. 최종 교차 확인**
+발행 전 동료 1인 이상이 내용을 교차 검토합니다.
+
+---
+
+## 4. SEO 작성 원칙
+
+**제목(Title)**
+- 핵심 키워드를 제목 앞쪽에 배치
+- 30자 이내 권장
+- 숫자·의문형 활용 시 클릭률 향상 효과 있음
+
+**메타 디스크립션**
+- 80~120자 이내
+- 아티클 핵심 내용을 요약하고 클릭 유도 문구 포함
+
+**본문 키워드**
+- 핵심 키워드는 첫 문단, 소제목, 본문 전반에 자연스럽게 분산
+- 키워드 밀도는 2~3% 유지 (억지 반복 금지)
+
+**내부 링크**
+- 관련 아티클 1개 이상 본문 내 자연스럽게 연결
+- 앵커 텍스트는 "여기를 클릭" 대신 내용을 설명하는 문장으로
+
+---
+
+## 5. 이미지 · 비주얼 가이드
+
+**대표 이미지**
+- 사이즈: 1200×630px (OG 이미지 기준)
+- 텍스트 삽입 시 이미지 하단 20% 영역은 텍스트 배치 금지
+
+**본문 이미지**
+- 쏘카 앱 스크린샷: 최신 버전 UI 기준, 개인정보 영역 블러 처리
+- 외부 이미지: 저작권 무료 소스만 사용
+- 사람 사진: 쏘카 자체 촬영 또는 모델 계약 이미지만 사용
+
+**톤 & 무드**
+- 밝고 깔끔한 톤 유지
+- 쏘카 브랜드 컬러(#0078ff) 포인트 활용 권장
+
+---
+
+## 6. 발행 전 체크리스트
+
+아티클 발행 전 캘린더의 각 아티클 상세에서 항목별로 체크해 주세요.
+모든 항목을 체크해야 진행 상태를 '발행'으로 변경할 수 있습니다.
+
+---
+
+## 7. 용어·표기 가이드
+
+| 올바른 표기 | 잘못된 표기 | 비고 |
+|---|---|---|
+| 쏘카존 | 쏘카 존 / 소카존 | 붙여쓰기 |
+| 안심플랜 | 안심 플랜 | 공식 명칭 확인 |
+| 쏘카패스 | 쏘카 패스 | 붙여쓰기 |
+| 반납 | 반납하기 | 단독 명사로 사용 |
+| 예약 취소 | 예약취소 | 띄어쓰기 |
+
+> 위 표는 예시입니다. ✏️ 편집 버튼으로 직접 수정·추가해 주세요.`;
+
+// ── GAS API ──
+async function gasGet(action) {
+  const res = await fetch(`${GAS_URL}?action=${action}`);
   return res.json();
 }
-
-async function loadData() {
-  try {
-    const r = await api("getAll");
-    items = r.data || [];
-    render();
-  } catch(e) {
-    document.getElementById("content").innerHTML = `<div class="loading" style="color:#EF4444">데이터 로드 실패. API_URL을 확인해주세요.<br><small>${e}</small></div>`;
-  }
-}
-
-// ── 배지 ──────────────────────────────────────────
-function badge(status) {
-  const s = ST_COLORS[status]||{bg:"#eee",text:"#666"};
-  return `<span class="badge" style="background:${s.bg};color:${s.text}">${status}</span>`;
-}
-function catBadge(cat) {
-  const c = CATS[cat]||CATS.understand;
-  return `<span class="badge" style="background:${c.bg};color:${c.color}">${c.label}</span>`;
-}
-
-// ── 렌더 ──────────────────────────────────────────
-function render() {
-  renderSummary();
-  renderContent();
-}
-
-function renderSummary() {
-  const pub = items.filter(i=>i.status==="발행");
-  const totalViews = pub.reduce((s,i)=>s+Number(i.views||0),0);
-  const uCount = items.filter(i=>i.category==="understand").length;
-  const cCount = items.filter(i=>i.category==="usecase").length;
-  const cards = [
-    {label:"전체 아이템", value:items.length, sub:`서비스이해 ${uCount} · 케이스 ${cCount}`, color:"#6366F1"},
-    {label:"발행 완료",   value:pub.length,   sub:"발행된 아티클",   color:"#10B981"},
-    {label:"진행 중",     value:items.filter(i=>i.status!=="발행").length, sub:"기획~검토 단계", color:"#F97316"},
-    {label:"누적 조회수", value:totalViews.toLocaleString(), sub:"발행 아티클 합산", color:"#00B4D8"},
-  ];
-  document.getElementById("summary").innerHTML = cards.map(c=>`
-    <div class="card">
-      <div class="card-label">${c.label}</div>
-      <div class="card-value" style="color:${c.color}">${c.value}</div>
-      <div class="card-sub">${c.sub}</div>
-    </div>`).join("");
-}
-
-function renderContent() {
-  const el = document.getElementById("content");
-  if (curTab==="pool")     el.innerHTML = renderPool();
-  if (curTab==="kanban")   el.innerHTML = renderKanban();
-  if (curTab==="calendar") el.innerHTML = renderCalendar();
-  if (curTab==="stats")    el.innerHTML = renderStats();
-}
-
-// ── 아이템 풀 ─────────────────────────────────────
-function renderPool() {
-  const filtered = items.filter(i=>
-    (filterCat==="all"||i.category===filterCat) &&
-    (filterStatus==="all"||i.status===filterStatus)
-  );
-  const catBtns = ["all","understand","usecase"].map(k=>`
-    <button class="filter-btn${filterCat===k?" active":""}" onclick="setFilterCat('${k}')">${k==="all"?"전체":CATS[k].label}</button>`).join("");
-  const statusOpts = ["all",...STATUSES].map(s=>`<option value="${s}"${filterStatus===s?" selected":""}>${s==="all"?"모든 상태":s}</option>`).join("");
-  const rows = filtered.length ? filtered.map(it=>`
-    <tr>
-      <td><div class="td-title">${esc(it.title)}</div>${it.memo?`<div class="td-memo">${esc(it.memo)}</div>`:""}</td>
-      <td>${catBadge(it.category)}</td>
-      <td>${badge(it.status)}</td>
-      <td style="font-size:13px;color:#6B7280">${it.publishDate||"-"}</td>
-      <td style="font-size:13px;font-weight:600">${it.views?Number(it.views).toLocaleString():"-"}</td>
-      <td>
-        <div style="display:flex;gap:6px">
-          <button class="btn-sm btn-edit" onclick="openModal(${it.id})">편집</button>
-          <button class="btn-sm btn-del" onclick="deleteItem(${it.id})">삭제</button>
-        </div>
-      </td>
-    </tr>`).join("") : `<tr><td colspan="6" class="empty">아이템이 없어요</td></tr>`;
-  return `<div class="panel">
-    <div class="filter-row">
-      ${catBtns}
-      <select class="fsel" onchange="setFilterStatus(this.value)">${statusOpts}</select>
-    </div>
-    <table>
-      <thead><tr>
-        <th>제목</th><th>카테고리</th><th>상태</th><th>발행일</th><th>조회수</th><th></th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-  </div>`;
-}
-
-// ── 칸반 ──────────────────────────────────────────
-function renderKanban() {
-  return `<div class="kanban">${STATUSES.map(st=>{
-    const col = items.filter(i=>i.status===st);
-    const sc = ST_COLORS[st];
-    const cards = col.length ? col.map(it=>`
-      <div class="kcard" style="border-left-color:${CATS[it.category]?.color||'#ccc'}" onclick="openModal(${it.id})">
-        <div class="kcard-title">${esc(it.title)}</div>
-        ${catBadge(it.category)}
-        ${it.publishDate?`<div class="kcard-date">📅 ${it.publishDate}</div>`:""}
-      </div>`).join("") : `<div style="font-size:13px;color:#D1D5DB;text-align:center;padding:20px 0">없음</div>`;
-    return `<div class="kcol">
-      <div class="kcol-head">
-        <span class="badge" style="background:${sc.bg};color:${sc.text}">${st}</span>
-        <span style="font-size:13px;color:#9CA3AF;font-weight:600">${col.length}</span>
-      </div>
-      ${cards}
-    </div>`;
-  }).join("")}</div>`;
-}
-
-// ── 캘린더 ────────────────────────────────────────
-function renderCalendar() {
-  const firstDay = new Date(calYear, calMonth, 1).getDay();
-  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
-  const mStr = `${calYear}-${String(calMonth+1).padStart(2,"0")}`;
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
-
-  const dateMap = {};
-  items.forEach(it=>{
-    if(it.publishDate&&it.publishDate.startsWith(mStr)){
-      const d = parseInt(it.publishDate.split("-")[2]);
-      (dateMap[d]=dateMap[d]||[]).push(it);
-    }
+async function gasPost(action, data) {
+  await fetch(GAS_URL, {
+    method: "POST",
+    body: JSON.stringify({ action, data }),
   });
-
-  const dayNames = ["일","월","화","수","목","금","토"].map(d=>`<div class="cal-dname">${d}</div>`).join("");
-  let cells = Array(firstDay).fill(`<div></div>`);
-  for(let d=1;d<=daysInMonth;d++){
-    const ds = `${calYear}-${String(calMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-    const isT = ds===todayStr;
-    const evts = (dateMap[d]||[]).map(it=>`<div class="cal-ev" style="background:${CATS[it.category]?.color||'#999'}">${esc(it.title)}</div>`).join("");
-    cells.push(`<div class="cal-cell${isT?" today":""}"><div class="cal-num">${d}</div>${evts}</div>`);
-  }
-
-  const upcoming = [...items].filter(i=>i.publishDate&&i.status!=="발행").sort((a,b)=>a.publishDate>b.publishDate?1:-1).slice(0,4);
-  const upcomingHtml = upcoming.length ? upcoming.map(it=>`
-    <div class="upcoming">
-      <div class="upcoming-title">${esc(it.title)}</div>
-      <div class="upcoming-badges">${catBadge(it.category)} ${badge(it.status)}</div>
-      <div class="upcoming-date">📅 ${it.publishDate}</div>
-    </div>`).join("") : `<div style="color:#9CA3AF;font-size:13px">예정된 아티클 없음</div>`;
-
-  return `<div class="cal-wrap">
-    <div class="cal-panel">
-      <div class="cal-nav">
-        <button onclick="calMove(-1)">‹</button>
-        <span>${calYear}년 ${calMonth+1}월</span>
-        <button onclick="calMove(1)">›</button>
-      </div>
-      <div class="cal-grid">${dayNames}${cells.join("")}</div>
-    </div>
-    <div class="cal-panel">
-      <div style="font-weight:700;font-size:15px;margin-bottom:14px">예정된 발행</div>
-      ${upcomingHtml}
-    </div>
-  </div>`;
 }
 
-function calMove(dir) {
-  calMonth += dir;
-  if(calMonth<0){calMonth=11;calYear--;}
-  if(calMonth>11){calMonth=0;calYear++;}
-  renderContent();
+// ── Markdown renderer ──
+function renderInline(text) {
+  return text.split(/(\*\*[^*]+\*\*)/).map((p,i) =>
+    p.startsWith("**") && p.endsWith("**") ? <strong key={i}>{p.slice(2,-2)}</strong> : p
+  );
+}
+function GuidelineView({ content }) {
+  const lines = content.split("\n");
+  let inCode=false, codeBuf=[], els=[];
+  lines.forEach((line,i) => {
+    if (line.startsWith("```")) {
+      if (!inCode) { inCode=true; }
+      else { els.push(<pre key={i} style={{background:"#f9fafb",border:"1px solid #e5e7eb",borderRadius:8,padding:14,fontSize:13,color:"#4b5563",margin:"14px 0",lineHeight:1.7}}>{codeBuf.join("\n")}</pre>); codeBuf=[]; inCode=false; }
+      return;
+    }
+    if (inCode) { codeBuf.push(line); return; }
+    if (line.startsWith("# "))  { els.push(<h1 key={i} style={{fontSize:24,fontWeight:700,color:"#111827",marginTop:24,marginBottom:12}}>{line.slice(2)}</h1>); return; }
+    if (line.startsWith("## ")) { els.push(<h2 key={i} style={{fontSize:18,fontWeight:700,color:"#1f2937",marginTop:32,marginBottom:8,paddingBottom:6,borderBottom:"1px solid #e5e7eb"}}>{line.slice(3)}</h2>); return; }
+    if (line.startsWith("### ")){ els.push(<h3 key={i} style={{fontSize:16,fontWeight:600,color:"#374151",marginTop:20,marginBottom:4}}>{line.slice(4)}</h3>); return; }
+    if (line.startsWith("---")) { els.push(<hr key={i} style={{margin:"24px 0",borderColor:"#e5e7eb"}}/>); return; }
+    if (line.startsWith("> "))  { els.push(<blockquote key={i} style={{borderLeft:`4px solid ${BRAND}`,paddingLeft:16,color:"#6b7280",fontStyle:"italic",margin:"8px 0",fontSize:14}}>{line.slice(2)}</blockquote>); return; }
+    if (line.startsWith("- "))  { els.push(<li key={i} style={{marginLeft:20,fontSize:14,color:"#374151",lineHeight:1.8,listStyleType:"disc"}}>{renderInline(line.slice(2))}</li>); return; }
+    if (/^\d+\.\s/.test(line))  { els.push(<li key={i} style={{marginLeft:20,fontSize:14,color:"#374151",lineHeight:1.8,listStyleType:"decimal"}}>{renderInline(line.replace(/^\d+\.\s/,""))}</li>); return; }
+    if (line.startsWith("|")) {
+      const cells = line.split("|").filter((_,ci) => ci>0 && ci<line.split("|").length-1).map(c=>c.trim());
+      if (cells.every(c => /^-+$/.test(c))) return;
+      els.push(<tr key={i}>{cells.map((c,ci)=><td key={ci} style={{border:"1px solid #e5e7eb",padding:"8px 14px",fontSize:13,color:"#374151"}}>{c}</td>)}</tr>);
+      return;
+    }
+    if (line.startsWith("**") && line.endsWith("**")) { els.push(<p key={i} style={{fontWeight:600,color:"#1f2937",marginTop:16,marginBottom:4,fontSize:14}}>{line.slice(2,-2)}</p>); return; }
+    if (line === "") { els.push(<div key={i} style={{height:8}}/>); return; }
+    els.push(<p key={i} style={{fontSize:14,color:"#374151",lineHeight:1.8,marginBottom:4}}>{renderInline(line)}</p>);
+  });
+  const wrapped=[]; let trBuf=[];
+  els.forEach((el,i) => {
+    if (el.type==="tr") { trBuf.push(el); }
+    else { if (trBuf.length){ wrapped.push(<table key={"t"+i} style={{borderCollapse:"collapse",width:"100%",margin:"14px 0"}}><tbody>{trBuf}</tbody></table>); trBuf=[]; } wrapped.push(el); }
+  });
+  if (trBuf.length) wrapped.push(<table key="tlast" style={{borderCollapse:"collapse",width:"100%",margin:"14px 0"}}><tbody>{trBuf}</tbody></table>);
+  return <div style={{maxWidth:700,margin:"0 auto",padding:"16px 8px"}}>{wrapped}</div>;
 }
 
-// ── 성과 ──────────────────────────────────────────
-function renderStats() {
-  const pub = [...items].filter(i=>i.status==="발행").sort((a,b)=>Number(b.views||0)-Number(a.views||0));
-  const totalV = pub.reduce((s,i)=>s+Number(i.views||0),0);
-  const thisMonth = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}`;
-  const pubThisMonth = pub.filter(i=>i.publishDate&&i.publishDate.startsWith(thisMonth)).length;
-  const target = Math.floor(4.3*2);
-
-  const rankHtml = pub.length ? pub.map((it,i)=>`
-    <div class="rank-item">
-      <div class="rank-num" style="background:${i<3?"#00B4D8":"#F3F4F6"};color:${i<3?"#fff":"#9CA3AF"}">${i+1}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(it.title)}</div>
-        <div style="margin-top:4px">${catBadge(it.category)}</div>
-      </div>
-      <div class="rank-views">${Number(it.views||0).toLocaleString()}</div>
-    </div>`).join("") : `<div class="empty">발행된 아티클이 없어요</div>`;
-
-  const catHtml = Object.entries(CATS).map(([k,v])=>{
-    const ci = items.filter(i=>i.category===k);
-    const cp = ci.filter(i=>i.status==="발행");
-    const cv = cp.reduce((s,i)=>s+Number(i.views||0),0);
-    const pct = items.length ? Math.round(ci.length/items.length*100) : 0;
-    return `<div style="padding:14px 0;border-bottom:1px solid #F3F4F6">
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px;align-items:center">
-        ${catBadge(k)}
-        <span style="font-size:13px;color:#9CA3AF">전체 ${ci.length}개 · 발행 ${cp.length}개</span>
-      </div>
-      <div class="bar-wrap"><div class="bar" style="width:${pct}%;background:${v.color}"></div></div>
-      <div style="font-size:12px;color:#6B7280">누적 조회수 ${cv.toLocaleString()}</div>
-    </div>`;
-  }).join("");
-
-  return `<div class="stats-grid">
-    <div class="panel">
-      <div style="font-weight:700;font-size:15px;margin-bottom:16px">발행 아티클 조회수 순위</div>
-      ${rankHtml}
-    </div>
-    <div class="panel">
-      <div style="font-weight:700;font-size:15px;margin-bottom:16px">카테고리별 현황</div>
-      ${catHtml}
-      <div class="goal-box">
-        <div class="goal-title">주 2회 발행 기준</div>
-        <div class="goal-text">
-          이번 달 목표: <strong>${target}회</strong> 발행<br>
-          이번 달 완료: <strong>${pubThisMonth}회</strong>
+// ── Modals ──
+function ChecklistModal({article,onClose,onUpdate}){
+  const checked=article.checklist||{};
+  const done=CHECKLIST_ITEMS.filter(c=>checked[c.id]).length;
+  const allDone=done===CHECKLIST_ITEMS.length;
+  return(
+    <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:50,padding:16}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:16,boxShadow:"0 20px 60px rgba(0,0,0,0.15)",width:"100%",maxWidth:460,padding:28}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
+          <div>
+            <div style={{fontWeight:700,fontSize:17,color:"#111827"}}>발행 전 체크리스트</div>
+            <div style={{fontSize:13,color:"#6b7280",marginTop:4}}>{article.title}</div>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <span style={{fontSize:14,fontWeight:600,color:BRAND}}>{done}/{CHECKLIST_ITEMS.length}</span>
+            <button onClick={onClose} style={{color:"#9ca3af",fontSize:20,background:"none",border:"none",cursor:"pointer"}}>✕</button>
+          </div>
+        </div>
+        <div style={{background:"#f3f4f6",borderRadius:99,height:6,marginBottom:18}}>
+          <div style={{height:6,borderRadius:99,background:BRAND,transition:"width 0.3s",width:`${(done/CHECKLIST_ITEMS.length)*100}%`}}/>
+        </div>
+        <div style={{maxHeight:300,overflowY:"auto",display:"flex",flexDirection:"column",gap:10}}>
+          {CHECKLIST_ITEMS.map(item=>(
+            <label key={item.id} style={{display:"flex",alignItems:"flex-start",gap:10,cursor:"pointer"}}>
+              <input type="checkbox" checked={!!checked[item.id]} onChange={e=>onUpdate(article.id,{...checked,[item.id]:e.target.checked})}
+                style={{marginTop:3,width:15,height:15,accentColor:BRAND,flexShrink:0}}/>
+              <span style={{fontSize:14,lineHeight:1.6,color:checked[item.id]?"#9ca3af":"#374151",textDecoration:checked[item.id]?"line-through":"none"}}>{item.label}</span>
+            </label>
+          ))}
+        </div>
+        {!allDone&&<div style={{marginTop:14,background:"#fffbeb",borderRadius:8,padding:"10px 14px",fontSize:13,color:"#92400e"}}>⚠️ 모든 항목을 체크해야 '발행'으로 변경할 수 있어요.</div>}
+        <div style={{marginTop:18,paddingTop:14,borderTop:"1px solid #f3f4f6",display:"flex",justifyContent:"flex-end"}}>
+          <button onClick={onClose} style={{background:BRAND,color:"#fff",border:"none",borderRadius:8,padding:"10px 24px",fontSize:14,fontWeight:600,cursor:"pointer"}}>완료</button>
         </div>
       </div>
     </div>
-  </div>`;
+  );
 }
-
-// ── 모달 ──────────────────────────────────────────
-function openModal(id) {
-  const it = id ? items.find(i=>String(i.id)===String(id)) : null;
-  const catOpts = Object.entries(CATS).map(([k,v])=>`<option value="${k}"${it?.category===k?" selected":""}>${v.label}</option>`).join("");
-  const stOpts = STATUSES.map(s=>`<option${it?.status===s?" selected":""}>${s}</option>`).join("");
-  document.body.insertAdjacentHTML("beforeend",`
-    <div class="modal-overlay" id="modal-overlay" onclick="closeModalIfBg(event)">
-      <div class="modal">
-        <h3>${it?"아이템 편집":"새 아이템 추가"}</h3>
-        <input type="hidden" id="m-id" value="${it?.id||""}">
-        <div class="fg"><label>제목</label><input id="m-title" value="${esc(it?.title||"")}" placeholder="아티클 제목 입력"></div>
-        <div class="frow">
-          <div class="fg"><label>카테고리</label><select id="m-cat">${catOpts}</select></div>
-          <div class="fg"><label>상태</label><select id="m-status">${stOpts}</select></div>
-        </div>
-        <div class="frow">
-          <div class="fg"><label>발행 예정일</label><input type="date" id="m-date" value="${it?.publishDate||""}"></div>
-          <div class="fg"><label>조회수</label><input type="number" id="m-views" value="${it?.views||0}"></div>
-        </div>
-        <div class="fg"><label>메모</label><textarea id="m-memo" rows="2" placeholder="기획 의도, 참고 사항 등">${esc(it?.memo||"")}</textarea></div>
-        <div class="modal-foot">
-          <button class="btn-cancel" onclick="closeModal()">취소</button>
-          <button class="btn-save" onclick="saveModal()">저장</button>
+function BlockModal({onClose,onOpenChecklist}){
+  return(
+    <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:50,padding:16}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:16,boxShadow:"0 20px 60px rgba(0,0,0,0.15)",width:"100%",maxWidth:380,padding:28,textAlign:"center"}}>
+        <div style={{fontSize:36,marginBottom:14}}>🔒</div>
+        <div style={{fontWeight:700,fontSize:17,color:"#111827",marginBottom:10}}>발행 전 체크리스트를 먼저 완료해주세요</div>
+        <div style={{fontSize:14,color:"#6b7280",marginBottom:24,lineHeight:1.7}}>모든 체크리스트 항목을 완료해야<br/>진행 상태를 '발행'으로 변경할 수 있어요.</div>
+        <div style={{display:"flex",gap:8}}>
+          <button onClick={onClose} style={{flex:1,border:"1px solid #e5e7eb",borderRadius:8,padding:"10px 0",fontSize:14,color:"#6b7280",background:"#fff",cursor:"pointer"}}>닫기</button>
+          <button onClick={onOpenChecklist} style={{flex:1,background:BRAND,color:"#fff",border:"none",borderRadius:8,padding:"10px 0",fontSize:14,fontWeight:600,cursor:"pointer"}}>체크리스트 열기</button>
         </div>
       </div>
-    </div>`);
+    </div>
+  );
 }
 
-function closeModal() {
-  document.getElementById("modal-overlay")?.remove();
-}
-function closeModalIfBg(e) {
-  if(e.target.id==="modal-overlay") closeModal();
-}
+// ── Main App ──
+function App(){
+  const {useState,useEffect}=React;
+  const [articles,setArticles]=useState([]);
+  const [issues,setIssues]=useState(DEFAULT_ISSUES);
+  const [monthMemos,setMonthMemos]=useState({});
+  const [loading,setLoading]=useState(true);
+  const [saving,setSaving]=useState(false);
+  const [selectedTab,setSelectedTab]=useState(new Date().getMonth());
+  const [editingId,setEditingId]=useState(null);
+  const [showAddModal,setShowAddModal]=useState(false);
+  const [newArticle,setNewArticle]=useState({publishDate:"",type:"서비스 설명",title:"",url:"",keyword:"",status:"🗂 기획",memo:"",month:null,noMonth:false});
+  const [filterType,setFilterType]=useState("전체");
+  const [filterStatus,setFilterStatus]=useState("전체");
+  const [checklistArticle,setChecklistArticle]=useState(null);
+  const [blockArticle,setBlockArticle]=useState(null);
+  const [guidelineText,setGuidelineText]=useState(DEFAULT_GUIDELINE);
+  const [editingGuide,setEditingGuide]=useState(false);
+  const [guideDraft,setGuideDraft]=useState("");
+  const [urlEditId,setUrlEditId]=useState(null);
+  const [urlInput,setUrlInput]=useState("");
+  const [memoSaved,setMemoSaved]=useState({});
 
-async function saveModal() {
-  const id = document.getElementById("m-id").value;
-  const body = {
-    id: id||undefined,
-    title: document.getElementById("m-title").value.trim(),
-    category: document.getElementById("m-cat").value,
-    status: document.getElementById("m-status").value,
-    publishDate: document.getElementById("m-date").value,
-    views: Number(document.getElementById("m-views").value)||0,
-    memo: document.getElementById("m-memo").value.trim()
+  // ── 초기 데이터 로드 ──
+  useEffect(()=>{
+    (async()=>{
+      try {
+        const [arts,iss,memos]=await Promise.all([gasGet("getArticles"),gasGet("getIssues"),gasGet("getMemos")]);
+        if(arts&&arts.length) {
+          setArticles(arts.map(a=>({...a,
+            month: a.month===""||a.month===null?null:Number(a.month),
+            noMonth: a.noMonth==="TRUE"||a.noMonth===true,
+            checklist: typeof a.checklist==="string"&&a.checklist?JSON.parse(a.checklist):{}
+          })));
+        }
+        if(iss&&iss.length) {
+          const obj={...DEFAULT_ISSUES};
+          iss.forEach(r=>{ if(r.month!=="") obj[Number(r.month)]=r.issueText; });
+          setIssues(obj);
+        }
+        if(memos&&memos.length) {
+          const obj={};
+          memos.forEach(r=>{ if(r.month!=="") obj[Number(r.month)]=r.memoText; });
+          setMonthMemos(obj);
+        }
+      } catch(e){ console.error("로드 실패",e); }
+      setLoading(false);
+    })();
+  },[]);
+
+  const saveArticles=async(data)=>{ setSaving(true); await gasPost("saveArticles",data.map(a=>({...a,checklist:JSON.stringify(a.checklist||{})}))); setSaving(false); };
+  const saveIssues=async(data)=>{ await gasPost("saveIssues",Object.entries(data).map(([month,issueText])=>({month,issueText}))); };
+  const saveMemo=async(month,text)=>{ const next={...monthMemos,[month]:text}; setMonthMemos(next); await gasPost("saveMemos",Object.entries(next).map(([m,memoText])=>({month:m,memoText}))); setMemoSaved(p=>({...p,[month]:true})); setTimeout(()=>setMemoSaved(p=>({...p,[month]:false})),2000); };
+
+  const update=async(id,field,val)=>{ const next=articles.map(a=>a.id===id?{...a,[field]:val}:a); setArticles(next); await saveArticles(next); };
+  const updateChecklist=async(id,cl)=>{ const next=articles.map(a=>a.id===id?{...a,checklist:cl}:a); setArticles(next); setChecklistArticle(p=>p?{...p,checklist:cl}:null); await saveArticles(next); };
+  const deleteArticle=async(id)=>{ const next=articles.filter(a=>a.id!==id); setArticles(next); await saveArticles(next); };
+  const addArticle=async()=>{
+    const maxId=Math.max(0,...articles.map(a=>Number(a.id)||0));
+    const month=newArticle.noMonth?null:(isMonthTab?selectedTab:(newArticle.month??0));
+    const next=[...articles,{...newArticle,id:maxId+1,month,checklist:{}}];
+    setArticles(next); await saveArticles(next);
+    setShowAddModal(false);
+    setNewArticle({publishDate:"",type:"서비스 설명",title:"",url:"",keyword:"",status:"🗂 기획",memo:"",month:null,noMonth:false});
   };
-  if(!body.title){ alert("제목을 입력해주세요."); return; }
-  closeModal();
-  showToast("저장 중...");
-  try {
-    if(id) await api("update", body);
-    else    await api("add", body);
-    await loadData();
-    showToast("저장 완료!");
-  } catch(e) {
-    showToast("저장 실패: "+e);
-  }
+  const handleStatusChange=async(a,val)=>{
+    if(val==="🚀 발행"&&Object.values(a.checklist||{}).filter(Boolean).length<CHECKLIST_ITEMS.length){setBlockArticle(a);return;}
+    await update(a.id,"status",val);
+  };
+  const saveUrl=async(id)=>{ await update(id,"url",urlInput); setUrlEditId(null); };
+  const updateIssue=async(month,text)=>{ const next={...issues,[month]:text}; setIssues(next); await saveIssues(next); };
+
+  const isAllTab=selectedTab===12,isGuideTab=selectedTab===13,isMonthTab=selectedTab<=11;
+  const monthArticles=articles.filter(a=>(isAllTab||isGuideTab||a.month===selectedTab)&&(filterType==="전체"||a.type===filterType)&&(filterStatus==="전체"||a.status===filterStatus));
+  const sorted=[...monthArticles].sort((a,b)=>(b.publishDate||"").localeCompare(a.publishDate||""));
+  const totalByStatus=s=>articles.filter(a=>(isAllTab||isGuideTab||a.month===selectedTab)&&a.status===s).length;
+
+  if(loading) return(
+    <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",flexDirection:"column",gap:16}}>
+      <div style={{width:36,height:36,borderRadius:"50%",border:`4px solid #e5e7eb`,borderTopColor:BRAND,animation:"spin 0.8s linear infinite"}}/>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      <div style={{fontSize:15,color:"#9ca3af"}}>데이터 불러오는 중...</div>
+    </div>
+  );
+
+  return(
+    <div style={{minHeight:"100vh",background:"#f9fafb",padding:20}}>
+      {saving&&<div style={{position:"fixed",top:16,right:16,background:"#111827",color:"#fff",padding:"8px 16px",borderRadius:8,fontSize:13,zIndex:100}}>저장 중...</div>}
+
+      {/* Header */}
+      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:28}}>
+        <div style={{width:36,height:36,borderRadius:8,background:BRAND,display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <span style={{color:"#fff",fontWeight:700,fontSize:16}}>S</span>
+        </div>
+        <div>
+          <div style={{fontWeight:700,fontSize:20,color:"#111827"}}>쏘카 블로그 운영 캘린더</div>
+          <div style={{fontSize:13,color:"#9ca3af"}}>월간 아티클 기획 및 발행 관리</div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:20}}>
+        {[...MONTHS,"전체","가이드라인"].map((m,i)=>(
+          <button key={i} onClick={()=>{setSelectedTab(i);setEditingGuide(false);}}
+            style={{padding:"7px 14px",borderRadius:99,fontSize:14,fontWeight:500,cursor:"pointer",transition:"all 0.15s",
+              background:selectedTab===i?(i===12?"#6366f1":i===13?"#0f766e":BRAND):"#fff",
+              color:selectedTab===i?"#fff":"#4b5563",
+              border:selectedTab===i?"none":"1px solid #e5e7eb"}}>
+            {m}
+          </button>
+        ))}
+      </div>
+
+      {isGuideTab?(
+        <div style={{background:"#fff",borderRadius:12,border:"1px solid #e5e7eb",boxShadow:"0 1px 4px rgba(0,0,0,0.06)",overflow:"hidden"}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 28px",borderBottom:"1px solid #f3f4f6",background:"#f9fafb"}}>
+            <span style={{fontSize:14,fontWeight:600,color:"#6b7280"}}>블로그 운영 가이드라인</span>
+            {editingGuide?(
+              <div style={{display:"flex",gap:8}}>
+                <button onClick={()=>setEditingGuide(false)} style={{fontSize:13,color:"#6b7280",border:"1px solid #e5e7eb",padding:"5px 14px",borderRadius:8,background:"#fff",cursor:"pointer"}}>취소</button>
+                <button onClick={()=>{setGuidelineText(guideDraft);setEditingGuide(false);}} style={{fontSize:13,color:"#fff",background:BRAND,border:"none",padding:"5px 14px",borderRadius:8,fontWeight:600,cursor:"pointer"}}>저장</button>
+              </div>
+            ):(
+              <button onClick={()=>{setGuideDraft(guidelineText);setEditingGuide(true);}} style={{fontSize:13,color:"#6b7280",border:"1px solid #e5e7eb",padding:"5px 14px",borderRadius:8,background:"#fff",cursor:"pointer"}}>✏️ 편집</button>
+            )}
+          </div>
+          {editingGuide?(
+            <textarea value={guideDraft} onChange={e=>setGuideDraft(e.target.value)}
+              style={{width:"100%",padding:28,fontSize:14,color:"#374151",fontFamily:"monospace",lineHeight:1.7,outline:"none",border:"none",resize:"none",minHeight:"70vh"}}/>
+          ):(
+            <div style={{padding:"0 36px 28px",overflowY:"auto",maxHeight:"75vh"}}>
+              <GuidelineView content={guidelineText}/>
+            </div>
+          )}
+        </div>
+      ):(
+        <>
+          {isMonthTab&&(
+            <>
+              <div style={{marginBottom:14}}>
+                <IssueTag month={selectedTab} issues={issues} onSave={updateIssue}/>
+              </div>
+              <div style={{marginBottom:14,position:"relative"}}>
+                <textarea value={monthMemos[selectedTab]||""} onChange={e=>setMonthMemos(p=>({...p,[selectedTab]:e.target.value}))}
+                  placeholder="이달의 메모 (기획 방향, 공유 사항 등 자유롭게 작성)"
+                  style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:12,padding:"14px 90px 14px 18px",fontSize:14,color:"#374151",background:"#fff",resize:"none",outline:"none",minHeight:80,lineHeight:1.7}}/>
+                <div style={{position:"absolute",bottom:12,right:12,display:"flex",alignItems:"center",gap:8}}>
+                  {memoSaved[selectedTab]&&<span style={{fontSize:12,color:"#9ca3af"}}>저장됨 ✓</span>}
+                  <button onClick={()=>saveMemo(selectedTab,monthMemos[selectedTab]||"")}
+                    style={{fontSize:13,color:"#fff",background:BRAND,border:"none",padding:"5px 14px",borderRadius:8,fontWeight:600,cursor:"pointer"}}>저장</button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Stats */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8,marginBottom:16}}>
+            {STATUS_OPTIONS.map(s=>(
+              <div key={s} style={{borderRadius:8,padding:"10px 12px",textAlign:"center",...STATUS_STYLE[s]}}>
+                <div style={{fontSize:20,fontWeight:700}}>{totalByStatus(s)}</div>
+                <div style={{fontSize:13}}>{s}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Filters */}
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16,flexWrap:"wrap"}}>
+            {isMonthTab&&<>
+              <select value={filterType} onChange={e=>setFilterType(e.target.value)} style={{fontSize:14,border:"1px solid #e5e7eb",borderRadius:8,padding:"7px 12px",background:"#fff",color:"#374151"}}>
+                <option>전체</option>{TYPE_OPTIONS.map(t=><option key={t}>{t}</option>)}
+              </select>
+              <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)} style={{fontSize:14,border:"1px solid #e5e7eb",borderRadius:8,padding:"7px 12px",background:"#fff",color:"#374151"}}>
+                <option>전체</option>{STATUS_OPTIONS.map(s=><option key={s}>{s}</option>)}
+              </select>
+            </>}
+            <button onClick={()=>setShowAddModal(true)} style={{marginLeft:"auto",fontSize:14,color:"#fff",background:BRAND,border:"none",padding:"7px 18px",borderRadius:8,fontWeight:600,cursor:"pointer"}}>+ 아티클 추가</button>
+          </div>
+
+          {isAllTab?(
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+              {TYPE_OPTIONS.map(type=>{
+                const allTyped=articles.filter(a=>a.type===type);
+                const noMonth=allTyped.filter(a=>a.noMonth);
+                const withMonth=[...allTyped.filter(a=>!a.noMonth)].sort((a,b)=>(b.publishDate||"").localeCompare(a.publishDate||""));
+                const typed=[...noMonth,...withMonth];
+                return(
+                  <div key={type} style={{background:"#fff",borderRadius:12,border:"1px solid #e5e7eb",boxShadow:"0 1px 4px rgba(0,0,0,0.06)",overflow:"hidden"}}>
+                    <div style={{padding:"12px 18px",borderBottom:"1px solid #f3f4f6",background:type==="서비스 설명"?"#faf5ff":"#fff7ed",display:"flex",alignItems:"center",gap:8}}>
+                      <span style={{padding:"3px 10px",borderRadius:99,fontSize:13,fontWeight:600,...TYPE_STYLE[type]}}>{type}</span>
+                      <span style={{fontSize:13,color:"#9ca3af"}}>{typed.length}편</span>
+                      {noMonth.length>0&&<span style={{fontSize:12,color:"#9ca3af"}}>(미정 {noMonth.length}편 포함)</span>}
+                    </div>
+                    <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed"}}>
+                      <colgroup><col style={{width:36}}/><col style={{width:46}}/><col/><col style={{width:110}}/></colgroup>
+                      <thead>
+                        <tr style={{background:"#f9fafb",borderBottom:"1px solid #f3f4f6"}}>
+                          {["No","월","제목","상태"].map(h=><th key={h} style={{textAlign:"center",padding:"9px 12px",fontSize:13,fontWeight:600,color:"#9ca3af",whiteSpace:"nowrap"}}>{h}</th>)}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {typed.length===0?<tr><td colSpan={4} style={{textAlign:"center",padding:36,fontSize:14,color:"#9ca3af"}}>아티클 없음</td></tr>
+                        :typed.map((a,i)=>{
+                          const isP=a.status==="🚀 발행";
+                          return(
+                            <tr key={a.id} style={{borderBottom:"1px solid #f9fafb",background:isP?"#f9fafb":a.noMonth?"#eff6ff":"#fff"}}>
+                              <td style={{padding:"9px 12px",fontSize:13,textAlign:"center",color:"#9ca3af"}}>{i+1}</td>
+                              <td style={{padding:"9px 12px",fontSize:13,textAlign:"center",color:isP?"#d1d5db":"#6b7280",whiteSpace:"nowrap"}}>{a.noMonth?<em style={{color:"#9ca3af"}}>미정</em>:MONTHS[a.month]}</td>
+                              <td style={{padding:"9px 12px"}}>
+                                {a.url?<a href={a.url} target="_blank" rel="noreferrer" style={{fontSize:13,fontWeight:500,color:isP?"#9ca3af":"#2563eb",textDecoration:"none"}}>{a.title}</a>
+                                :<span style={{fontSize:13,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>}
+                              </td>
+                              <td style={{padding:"9px 12px",textAlign:"center"}}>
+                                <select value={a.status} onChange={e=>{if(e.target.value==="🚀 발행"&&Object.values(a.checklist||{}).filter(Boolean).length<CHECKLIST_ITEMS.length){setBlockArticle(a);return;}update(a.id,"status",e.target.value);}}
+                                  style={{fontSize:13,borderRadius:99,padding:"3px 6px",border:"none",fontWeight:600,cursor:"pointer",width:"100%",...STATUS_STYLE[a.status]}}>
+                                  {STATUS_OPTIONS.map(s=><option key={s}>{s}</option>)}
+                                </select>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })}
+            </div>
+          ):(
+            <div style={{background:"#fff",borderRadius:12,border:"1px solid #e5e7eb",boxShadow:"0 1px 4px rgba(0,0,0,0.06)",overflow:"hidden"}}>
+              <div style={{overflowX:"auto"}}>
+                <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed"}}>
+                  <colgroup><col style={{width:100}}/><col style={{width:100}}/><col/><col style={{width:110}}/><col style={{width:115}}/><col style={{width:110}}/><col style={{width:52}}/></colgroup>
+                  <thead>
+                    <tr style={{background:"#f9fafb",borderBottom:"1px solid #e5e7eb"}}>
+                      {["발행일","유형","아티클 제목","핵심 키워드","진행 상태","메모",""].map((h,i)=>(
+                        <th key={i} style={{textAlign:"center",padding:"13px 12px",fontSize:13,fontWeight:600,color:"#9ca3af",whiteSpace:"nowrap"}}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sorted.length===0?<tr><td colSpan={7} style={{textAlign:"center",padding:48,color:"#9ca3af",fontSize:15}}>아티클이 없습니다.</td></tr>
+                    :sorted.map(a=>{
+                      const isP=a.status==="🚀 발행";
+                      const doneCount=Object.values(a.checklist||{}).filter(Boolean).length;
+                      const allDone=doneCount===CHECKLIST_ITEMS.length;
+                      return(
+                        <tr key={a.id} style={{borderBottom:"1px solid #f3f4f6",background:isP?"#f9fafb":"#fff"}}>
+                          <td style={{padding:"11px 12px",textAlign:"center",whiteSpace:"nowrap"}}>
+                            {editingId===a.id?<input type="date" value={a.publishDate} onChange={e=>update(a.id,"publishDate",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:13,width:"100%"}}/>
+                            :<span style={{fontSize:13,color:isP?"#9ca3af":"#4b5563"}}>{a.publishDate||"-"}</span>}
+                          </td>
+                          <td style={{padding:"11px 12px",textAlign:"center"}}>
+                            {editingId===a.id?<select value={a.type} onChange={e=>update(a.id,"type",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:13,width:"100%"}}>{TYPE_OPTIONS.map(t=><option key={t}>{t}</option>)}</select>
+                            :<span style={{display:"inline-block",padding:"3px 10px",borderRadius:99,fontSize:13,fontWeight:500,whiteSpace:"nowrap",...(isP?{background:"#f3f4f6",color:"#9ca3af"}:TYPE_STYLE[a.type])}}>{a.type}</span>}
+                          </td>
+                          <td style={{padding:"11px 12px"}}>
+                            <div style={{display:"flex",alignItems:"center",gap:6}}>
+                              {editingId===a.id?(
+                                <div style={{display:"flex",flexDirection:"column",gap:4,width:"100%"}}>
+                                  <input value={a.title} onChange={e=>update(a.id,"title",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:13,width:"100%"}}/>
+                                  <input value={a.url} onChange={e=>update(a.id,"url",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:13,width:"100%"}} placeholder="URL"/>
+                                </div>
+                              ):urlEditId===a.id?(
+                                <div style={{display:"flex",flexDirection:"column",gap:4,width:"100%"}}>
+                                  <span style={{fontSize:13,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>
+                                  <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                                    <input value={urlInput} onChange={e=>setUrlInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveUrl(a.id)} autoFocus placeholder="https://..."
+                                      style={{border:`1px solid ${BRAND}`,borderRadius:4,padding:"3px 8px",fontSize:13,flex:1,outline:"none"}}/>
+                                    <button onClick={()=>saveUrl(a.id)} style={{fontSize:13,color:"#fff",background:BRAND,border:"none",borderRadius:4,padding:"3px 10px",cursor:"pointer"}}>저장</button>
+                                    <button onClick={()=>setUrlEditId(null)} style={{fontSize:13,color:"#9ca3af",background:"none",border:"none",cursor:"pointer"}}>✕</button>
+                                  </div>
+                                </div>
+                              ):(
+                                <>
+                                  {a.url?<a href={a.url} target="_blank" rel="noreferrer" style={{fontSize:13,fontWeight:500,color:isP?"#9ca3af":"#111827",textDecoration:"none"}}>{a.title}</a>
+                                  :<span style={{fontSize:13,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>}
+                                  <button onClick={()=>{setUrlEditId(a.id);setUrlInput(a.url||"");}} style={{fontSize:13,color:"#d1d5db",background:"none",border:"none",cursor:"pointer",flexShrink:0}}>{a.url?"🔗":"+ 🔗"}</button>
+                                  <button onClick={()=>setChecklistArticle(a)}
+                                    style={{fontSize:12,padding:"3px 8px",borderRadius:99,border:`1px solid ${allDone?"#86efac":doneCount>0?"#93c5fd":"#e5e7eb"}`,
+                                      background:allDone?"#f0fdf4":doneCount>0?"#eff6ff":"#f9fafb",
+                                      color:allDone?"#166534":doneCount>0?"#1d4ed8":"#9ca3af",cursor:"pointer",flexShrink:0,fontWeight:500}}>
+                                    {allDone?"✅":doneCount>0?`☑ ${doneCount}/${CHECKLIST_ITEMS.length}`:"☑ 체크"}
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                          <td style={{padding:"11px 12px"}}>
+                            {editingId===a.id?<input value={a.keyword} onChange={e=>update(a.id,"keyword",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:13,width:"100%"}}/>
+                            :<span style={{fontSize:13,color:isP?"#9ca3af":"#6b7280"}}>{a.keyword}</span>}
+                          </td>
+                          <td style={{padding:"11px 12px",textAlign:"center",whiteSpace:"nowrap"}}>
+                            <select value={a.status} onChange={e=>handleStatusChange(a,e.target.value)}
+                              style={{fontSize:13,borderRadius:99,padding:"5px 10px",border:"none",fontWeight:600,cursor:"pointer",...STATUS_STYLE[a.status]}}>
+                              {STATUS_OPTIONS.map(s=><option key={s}>{s}</option>)}
+                            </select>
+                          </td>
+                          <td style={{padding:"11px 12px"}}>
+                            {editingId===a.id?<input value={a.memo} onChange={e=>update(a.id,"memo",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:13,width:"100%"}} placeholder="메모"/>
+                            :<span style={{fontSize:13,color:"#9ca3af"}}>{a.memo||"-"}</span>}
+                          </td>
+                          <td style={{padding:"11px 12px",textAlign:"center",whiteSpace:"nowrap"}}>
+                            <button onClick={()=>setEditingId(editingId===a.id?null:a.id)} style={{color:"#d1d5db",background:"none",border:"none",cursor:"pointer",fontSize:14,padding:"0 3px"}}>{editingId===a.id?"💾":"✏️"}</button>
+                            <button onClick={()=>deleteArticle(a.id)} style={{color:"#d1d5db",background:"none",border:"none",cursor:"pointer",fontSize:14,padding:"0 3px",marginLeft:4}}>✕</button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {checklistArticle&&<ChecklistModal article={checklistArticle} onClose={()=>setChecklistArticle(null)} onUpdate={updateChecklist}/>}
+      {blockArticle&&<BlockModal onClose={()=>setBlockArticle(null)} onOpenChecklist={()=>{setChecklistArticle(blockArticle);setBlockArticle(null);}}/>}
+
+      {showAddModal&&(
+        <div onClick={()=>setShowAddModal(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:50,padding:16}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:16,boxShadow:"0 20px 60px rgba(0,0,0,0.15)",width:"100%",maxWidth:460,padding:28}}>
+            <h2 style={{fontSize:18,fontWeight:700,color:"#111827",marginBottom:20}}>아티클 추가 {isMonthTab&&`— ${MONTHS[selectedTab]}`}</h2>
+            <div style={{display:"flex",flexDirection:"column",gap:14}}>
+              <div>
+                <label style={{fontSize:13,color:"#9ca3af",display:"block",marginBottom:5}}>발행 월</label>
+                <div style={{display:"flex",alignItems:"center",gap:12}}>
+                  <select disabled={newArticle.noMonth} value={newArticle.noMonth?"":(newArticle.month??(isMonthTab?selectedTab:0))} onChange={e=>setNewArticle(p=>({...p,month:Number(e.target.value)}))}
+                    style={{flex:1,border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:14,background:newArticle.noMonth?"#f9fafb":"#fff",color:newArticle.noMonth?"#9ca3af":"#374151"}}>
+                    {MONTHS.map((m,i)=><option key={i} value={i}>{m}</option>)}
+                  </select>
+                  <label style={{display:"flex",alignItems:"center",gap:6,fontSize:14,color:"#6b7280",cursor:"pointer",whiteSpace:"nowrap"}}>
+                    <input type="checkbox" checked={newArticle.noMonth} onChange={e=>setNewArticle(p=>({...p,noMonth:e.target.checked,month:e.target.checked?null:(isMonthTab?selectedTab:0)}))}/>
+                    월 미정
+                  </label>
+                </div>
+              </div>
+              {[{label:"발행 예정일",field:"publishDate",inputType:"date"},{label:"아티클 제목",field:"title",ph:"제목을 입력하세요"},{label:"URL",field:"url",ph:"https://"},{label:"핵심 키워드",field:"keyword",ph:"ex. 보험, 드라이브"},{label:"메모",field:"memo",ph:"참고사항 등"}].map(({label,field,inputType,ph})=>(
+                <div key={field}>
+                  <label style={{fontSize:13,color:"#9ca3af",display:"block",marginBottom:5}}>{label}</label>
+                  <input type={inputType||"text"} disabled={field==="publishDate"&&newArticle.noMonth} value={newArticle[field]} onChange={e=>setNewArticle(p=>({...p,[field]:e.target.value}))} placeholder={ph}
+                    style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:14,background:(field==="publishDate"&&newArticle.noMonth)?"#f9fafb":"#fff"}}/>
+                </div>
+              ))}
+              <div>
+                <label style={{fontSize:13,color:"#9ca3af",display:"block",marginBottom:5}}>유형</label>
+                <select value={newArticle.type} onChange={e=>setNewArticle(p=>({...p,type:e.target.value}))} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:14}}>
+                  {TYPE_OPTIONS.map(t=><option key={t}>{t}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{fontSize:13,color:"#9ca3af",display:"block",marginBottom:5}}>진행 상태</label>
+                <select value={newArticle.status} onChange={e=>setNewArticle(p=>({...p,status:e.target.value}))} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:14}}>
+                  {STATUS_OPTIONS.filter(s=>s!=="🚀 발행").map(s=><option key={s}>{s}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:8,marginTop:24}}>
+              <button onClick={()=>setShowAddModal(false)} style={{flex:1,border:"1px solid #e5e7eb",borderRadius:8,padding:"11px 0",fontSize:14,color:"#6b7280",background:"#fff",cursor:"pointer"}}>취소</button>
+              <button onClick={addArticle} disabled={!newArticle.title} style={{flex:1,background:newArticle.title?BRAND:"#9ca3af",color:"#fff",border:"none",borderRadius:8,padding:"11px 0",fontSize:14,fontWeight:600,cursor:newArticle.title?"pointer":"not-allowed"}}>추가하기</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
-async function deleteItem(id) {
-  if(!confirm("삭제할까요?")) return;
-  showToast("삭제 중...");
-  await api("delete", {id});
-  await loadData();
-  showToast("삭제 완료!");
+function IssueTag({month,issues,onSave}){
+  const {useState}=React;
+  const [editing,setEditing]=useState(false);
+  const [input,setInput]=useState("");
+  if(editing) return(
+    <div style={{display:"flex",alignItems:"center",gap:8}}>
+      <input value={input} onChange={e=>setInput(e.target.value)} autoFocus
+        onKeyDown={e=>{if(e.key==="Enter"){onSave(month,input);setEditing(false);}}}
+        style={{fontSize:13,border:"1px solid #f59e0b",borderRadius:99,padding:"5px 14px",background:"#fffbeb",color:"#92400e",outline:"none",width:240}}/>
+      <button onClick={()=>{onSave(month,input);setEditing(false);}} style={{fontSize:13,color:"#fff",background:BRAND,border:"none",padding:"5px 14px",borderRadius:99,fontWeight:600,cursor:"pointer"}}>저장</button>
+      <button onClick={()=>setEditing(false)} style={{fontSize:13,color:"#6b7280",border:"1px solid #e5e7eb",padding:"5px 10px",borderRadius:99,background:"#fff",cursor:"pointer"}}>취소</button>
+    </div>
+  );
+  return(
+    <button onClick={()=>{setInput(issues[month]);setEditing(true);}}
+      style={{fontSize:13,background:"#fffbeb",border:"1px solid #fde68a",color:"#92400e",padding:"5px 14px",borderRadius:99,fontWeight:500,cursor:"pointer",display:"flex",alignItems:"center",gap:6}}>
+      <span>이달의 이슈: {issues[month]}</span><span>✏️</span>
+    </button>
+  );
 }
 
-// ── 탭/필터 ───────────────────────────────────────
-function setTab(tab, el) {
-  curTab = tab;
-  document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
-  el.classList.add("active");
-  renderContent();
-}
-function setFilterCat(v) { filterCat=v; renderContent(); }
-function setFilterStatus(v) { filterStatus=v; renderContent(); }
-
-// ── 유틸 ──────────────────────────────────────────
-function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg; t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"), 2200);
-}
-
-// ── 초기화 ────────────────────────────────────────
-loadData();
+ReactDOM.render(<App/>,document.getElementById("root"));
 </script>
 </body>
 </html>
