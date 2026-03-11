@@ -560,64 +560,44 @@ function App(){
                       const doneCount=Object.values(a.checklist||{}).filter(Boolean).length;
                       const allDone=doneCount===CHECKLIST_ITEMS.length;
                       return(
-                        <tr key={a.id} style={{borderBottom:"1px solid #f3f4f6",background:isP?"#f9fafb":"#fff"}}>
+                        <tr key={a.id}
+                          onClick={()=>!isP&&openEditModal(a)}
+                          onMouseEnter={e=>{if(!isP)e.currentTarget.style.background="#f0f7ff";}}
+                          onMouseLeave={e=>{e.currentTarget.style.background=isP?"#f9fafb":"#fff";}}
+                          style={{borderBottom:"1px solid #f3f4f6",background:isP?"#f9fafb":"#fff",cursor:isP?"default":"pointer"}}>
                           <td style={{padding:"11px 12px",textAlign:"center",whiteSpace:"nowrap"}}>
-                            {editingId===a.id?<input type="date" value={a.publishDate} onChange={e=>update(a.id,"publishDate",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}}/>
-                            :<span style={{fontSize:15,color:isP?"#9ca3af":"#4b5563"}}>{a.publishDate?a.publishDate.slice(0,10):"-"}</span>}
+                            <span style={{fontSize:15,color:isP?"#9ca3af":"#4b5563"}}>{a.publishDate?a.publishDate.slice(0,10):"-"}</span>
                           </td>
                           <td style={{padding:"11px 12px",textAlign:"center"}}>
-                            {editingId===a.id?<select value={a.type} onChange={e=>update(a.id,"type",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}}>{TYPE_OPTIONS.map(t=><option key={t}>{t}</option>)}</select>
-                            :<span style={{display:"inline-block",padding:"3px 10px",borderRadius:99,fontSize:15,fontWeight:500,whiteSpace:"nowrap",...(isP?{background:"#f3f4f6",color:"#9ca3af"}:TYPE_STYLE[a.type])}}>{a.type}</span>}
+                            <span style={{display:"inline-block",padding:"3px 10px",borderRadius:99,fontSize:15,fontWeight:500,whiteSpace:"nowrap",...(isP?{background:"#f3f4f6",color:"#9ca3af"}:TYPE_STYLE[a.type])}}>{a.type}</span>
                           </td>
                           <td style={{padding:"11px 12px"}}>
                             <div style={{display:"flex",alignItems:"center",gap:6}}>
-                              {editingId===a.id?(
-                                <div style={{display:"flex",flexDirection:"column",gap:4,width:"100%"}}>
-                                  <input value={a.title} onChange={e=>update(a.id,"title",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}}/>
-                                  <input value={a.url} onChange={e=>update(a.id,"url",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}} placeholder="URL"/>
-                                </div>
-                              ):urlEditId===a.id?(
-                                <div style={{display:"flex",flexDirection:"column",gap:4,width:"100%"}}>
-                                  <span style={{fontSize:15,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>
-                                  <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                                    <input value={urlInput} onChange={e=>setUrlInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveUrl(a.id)} autoFocus placeholder="https://..."
-                                      style={{border:`1px solid ${BRAND}`,borderRadius:4,padding:"3px 8px",fontSize:15,flex:1,outline:"none"}}/>
-                                    <button onClick={()=>saveUrl(a.id)} style={{fontSize:15,color:"#fff",background:BRAND,border:"none",borderRadius:4,padding:"3px 10px",cursor:"pointer"}}>저장</button>
-                                    <button onClick={()=>setUrlEditId(null)} style={{fontSize:15,color:"#9ca3af",background:"none",border:"none",cursor:"pointer"}}>✕</button>
-                                  </div>
-                                </div>
-                              ):(
-                                <>
-                                  {a.url?<a href={a.url} target="_blank" rel="noreferrer" style={{fontSize:15,fontWeight:500,color:isP?"#9ca3af":"#111827",textDecoration:"none"}}>{a.title}</a>
-                                  :<span style={{fontSize:15,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>}
-                                  <button onClick={()=>{setUrlEditId(a.id);setUrlInput(a.url||"");}} style={{fontSize:15,color:"#d1d5db",background:"none",border:"none",cursor:"pointer",flexShrink:0}}>{a.url?"🔗":"+ 🔗"}</button>
-                                  <button onClick={()=>setChecklistArticle(a)}
-                                    style={{fontSize:14,padding:"3px 8px",borderRadius:99,border:`1px solid ${allDone?"#86efac":doneCount>0?"#93c5fd":"#e5e7eb"}`,
-                                      background:allDone?"#f0fdf4":doneCount>0?"#eff6ff":"#f9fafb",
-                                      color:allDone?"#166534":doneCount>0?"#1d4ed8":"#9ca3af",cursor:"pointer",flexShrink:0,fontWeight:500}}>
-                                    {allDone?"✅":doneCount>0?`☑ ${doneCount}/${CHECKLIST_ITEMS.length}`:"☑ 체크"}
-                                  </button>
-                                </>
-                              )}
+                              {isP&&a.url
+                                ?<a href={a.url} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} style={{fontSize:15,fontWeight:500,color:"#9ca3af",textDecoration:"none"}}>{a.title}</a>
+                                :<span style={{fontSize:15,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>}
+                              <button onClick={e=>{e.stopPropagation();setChecklistArticle(a);}}
+                                style={{fontSize:14,padding:"3px 8px",borderRadius:99,border:`1px solid ${allDone?"#86efac":doneCount>0?"#93c5fd":"#e5e7eb"}`,
+                                  background:allDone?"#f0fdf4":doneCount>0?"#eff6ff":"#f9fafb",
+                                  color:allDone?"#166534":doneCount>0?"#1d4ed8":"#9ca3af",cursor:"pointer",flexShrink:0,fontWeight:500}}>
+                                {allDone?"✅":doneCount>0?`☑ ${doneCount}/${CHECKLIST_ITEMS.length}`:"☑ 체크"}
+                              </button>
                             </div>
                           </td>
                           <td style={{padding:"11px 12px"}}>
-                            {editingId===a.id?<input value={a.keyword} onChange={e=>update(a.id,"keyword",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}}/>
-                            :<span style={{fontSize:15,color:isP?"#9ca3af":"#6b7280"}}>{a.keyword}</span>}
+                            <span style={{fontSize:15,color:isP?"#9ca3af":"#6b7280"}}>{a.keyword}</span>
                           </td>
                           <td style={{padding:"11px 12px",textAlign:"center",whiteSpace:"nowrap"}}>
-                            <select value={a.status} onChange={e=>handleStatusChange(a,e.target.value)}
+                            <select value={a.status} onClick={e=>e.stopPropagation()} onChange={e=>handleStatusChange(a,e.target.value)}
                               style={{fontSize:15,borderRadius:99,padding:"5px 10px",border:"none",fontWeight:600,cursor:"pointer",...STATUS_STYLE[a.status]}}>
                               {STATUS_OPTIONS.map(s=><option key={s}>{s}</option>)}
                             </select>
                           </td>
                           <td style={{padding:"11px 12px"}}>
-                            {editingId===a.id?<input value={a.memo} onChange={e=>update(a.id,"memo",e.target.value)} style={{border:"1px solid #e5e7eb",borderRadius:4,padding:"3px 6px",fontSize:15,width:"100%"}} placeholder="메모"/>
-                            :<span style={{fontSize:15,color:"#9ca3af"}}>{a.memo||"-"}</span>}
+                            <span style={{fontSize:15,color:"#9ca3af",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.memo||"-"}</span>
                           </td>
                           <td style={{padding:"11px 12px",textAlign:"center",whiteSpace:"nowrap"}}>
-                            <button onClick={()=>setEditingId(editingId===a.id?null:a.id)} style={{color:"#d1d5db",background:"none",border:"none",cursor:"pointer",fontSize:16,padding:"0 3px"}}>{editingId===a.id?"💾":"✏️"}</button>
-                            <button onClick={()=>deleteArticle(a.id)} style={{color:"#d1d5db",background:"none",border:"none",cursor:"pointer",fontSize:16,padding:"0 3px",marginLeft:4}}>✕</button>
+                            <button onClick={e=>{e.stopPropagation();deleteArticle(a.id);}} style={{color:"#d1d5db",background:"none",border:"none",cursor:"pointer",fontSize:16,padding:"0 3px"}}>✕</button>
                           </td>
                         </tr>
                       );
@@ -633,8 +613,8 @@ function App(){
       {editModal&&(
     <div onClick={()=>setEditModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:50,padding:16}}>
       <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:16,boxShadow:"0 20px 60px rgba(0,0,0,0.15)",width:"100%",maxWidth:480,padding:28}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-          <h2 style={{fontSize:19,fontWeight:700,color:"#111827"}}>아티클 수정</h2>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+          <h2 style={{fontSize:19,fontWeight:700,color:"#111827"}}>신규 아티클</h2>
           <button onClick={()=>setEditModal(null)} style={{color:"#9ca3af",fontSize:20,background:"none",border:"none",cursor:"pointer"}}>✕</button>
         </div>
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
@@ -695,8 +675,8 @@ function App(){
           {/* 메모 */}
           <div>
             <label style={{fontSize:14,color:"#9ca3af",display:"block",marginBottom:5}}>메모</label>
-            <input value={editDraft.memo||""} onChange={e=>setEditDraft(p=>({...p,memo:e.target.value}))} placeholder="참고사항 등"
-              style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15}}/>
+            <textarea value={editDraft.memo||""} onChange={e=>setEditDraft(p=>({...p,memo:e.target.value}))} placeholder="참고사항 등"
+              style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15,resize:"vertical",minHeight:180,lineHeight:1.7}}/>
           </div>
         </div>
         <div style={{display:"flex",gap:8,marginTop:24}}>
@@ -716,7 +696,7 @@ function App(){
       {showAddModal&&(
         <div onClick={()=>setShowAddModal(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:50,padding:16}}>
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:16,boxShadow:"0 20px 60px rgba(0,0,0,0.15)",width:"100%",maxWidth:460,padding:28}}>
-            <h2 style={{fontSize:20,fontWeight:700,color:"#111827",marginBottom:20}}>아티클 추가 {isMonthTab&&`— ${MONTHS[selectedTab]}`}</h2>
+            <h2 style={{fontSize:20,fontWeight:700,color:"#111827",marginBottom:20}}>신규 아티클</h2>
             <div style={{display:"flex",flexDirection:"column",gap:14}}>
               <div>
                 <label style={{fontSize:15,color:"#9ca3af",display:"block",marginBottom:5}}>발행 월</label>
@@ -731,13 +711,18 @@ function App(){
                   </label>
                 </div>
               </div>
-              {[{label:"발행 예정일",field:"publishDate",inputType:"date"},{label:"아티클 제목",field:"title",ph:"제목을 입력하세요"},{label:"URL",field:"url",ph:"https://"},{label:"핵심 키워드",field:"keyword",ph:"ex. 보험, 드라이브"},{label:"메모",field:"memo",ph:"참고사항 등"}].map(({label,field,inputType,ph})=>(
+              {[{label:"발행 예정일",field:"publishDate",inputType:"date"},{label:"아티클 제목",field:"title",ph:"제목을 입력하세요"},{label:"URL",field:"url",ph:"https://"},{label:"핵심 키워드",field:"keyword",ph:"ex. 보험, 드라이브"}].map(({label,field,inputType,ph})=>(
                 <div key={field}>
                   <label style={{fontSize:15,color:"#9ca3af",display:"block",marginBottom:5}}>{label}</label>
                   <input type={inputType||"text"} disabled={field==="publishDate"&&newArticle.noMonth} value={newArticle[field]} onChange={e=>setNewArticle(p=>({...p,[field]:e.target.value}))} placeholder={ph}
                     style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15,background:(field==="publishDate"&&newArticle.noMonth)?"#f9fafb":"#fff"}}/>
                 </div>
               ))}
+              <div>
+                <label style={{fontSize:15,color:"#9ca3af",display:"block",marginBottom:5}}>메모</label>
+                <textarea value={newArticle.memo} onChange={e=>setNewArticle(p=>({...p,memo:e.target.value}))} placeholder="참고사항 등"
+                  style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15,resize:"vertical",minHeight:180,lineHeight:1.7}}/>
+              </div>
               <div>
                 <label style={{fontSize:15,color:"#9ca3af",display:"block",marginBottom:5}}>유형</label>
                 <select value={newArticle.type} onChange={e=>setNewArticle(p=>({...p,type:e.target.value}))} style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15}}>
