@@ -317,6 +317,9 @@ function App(){
   const [urlEditId,setUrlEditId]=useState(null);
   const [urlInput,setUrlInput]=useState("");
   const [memoSaved,setMemoSaved]=useState({});
+  const [editDraft,setEditDraft]=useState({});
+  const [editModal,setEditModal]=useState(null);
+  const openEditModal=(a)=>{setEditDraft({...a});setEditModal(a);};
 
   useEffect(()=>{
     (async()=>{
@@ -503,15 +506,19 @@ function App(){
                         :typed.map((a,i)=>{
                           const isP=a.status==="🚀 발행";
                           return(
-                            <tr key={a.id} style={{borderBottom:"1px solid #f9fafb",background:isP?"#f9fafb":a.noMonth?"#eff6ff":"#fff"}}>
+                            <tr key={a.id} onClick={()=>!isP&&openEditModal(a)}
+                              style={{borderBottom:"1px solid #f9fafb",background:isP?"#f9fafb":a.noMonth?"#eff6ff":"#fff",cursor:isP?"default":"pointer"}}
+                              onMouseEnter={e=>{if(!isP)e.currentTarget.style.background="#f0f7ff";}}
+                              onMouseLeave={e=>{e.currentTarget.style.background=isP?"#f9fafb":a.noMonth?"#eff6ff":"#fff";}}>
                               <td style={{padding:"9px 12px",fontSize:15,textAlign:"center",color:"#9ca3af"}}>{i+1}</td>
                               <td style={{padding:"9px 12px",fontSize:15,textAlign:"center",color:isP?"#d1d5db":"#6b7280",whiteSpace:"nowrap"}}>{a.noMonth?<em style={{color:"#9ca3af"}}>미정</em>:MONTHS[a.month]}</td>
                               <td style={{padding:"9px 12px"}}>
-                                {a.url?<a href={a.url} target="_blank" rel="noreferrer" style={{fontSize:15,fontWeight:500,color:isP?"#9ca3af":"#2563eb",textDecoration:"none"}}>{a.title}</a>
-                                :<span style={{fontSize:15,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>}
+                                {isP&&a.url
+                  ?<a href={a.url} target="_blank" rel="noreferrer" style={{fontSize:15,fontWeight:500,color:"#9ca3af",textDecoration:"none"}}>{a.title}</a>
+                  :<span style={{fontSize:15,fontWeight:500,color:isP?"#9ca3af":"#111827"}}>{a.title}</span>}
                               </td>
                               <td style={{padding:"9px 12px",textAlign:"center"}}>
-                                <select value={a.status} onChange={e=>{if(e.target.value==="🚀 발행"&&Object.values(a.checklist||{}).filter(Boolean).length<CHECKLIST_ITEMS.length){setBlockArticle(a);return;}update(a.id,"status",e.target.value);}}
+                                <select value={a.status} onClick={e=>e.stopPropagation()} onChange={e=>{if(e.target.value==="🚀 발행"&&Object.values(a.checklist||{}).filter(Boolean).length<CHECKLIST_ITEMS.length){setBlockArticle(a);return;}update(a.id,"status",e.target.value);}}
                                   style={{fontSize:15,borderRadius:99,padding:"3px 6px",border:"none",fontWeight:600,cursor:"pointer",width:"100%",...STATUS_STYLE[a.status]}}>
                                   {STATUS_OPTIONS.map(s=><option key={s}>{s}</option>)}
                                 </select>
@@ -623,7 +630,87 @@ function App(){
         </>
       )}
 
-      {checklistArticle&&<ChecklistModal article={checklistArticle} onClose={()=>setChecklistArticle(null)} onUpdate={updateChecklist}/>}
+      {editModal&&(
+    <div onClick={()=>setEditModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:50,padding:16}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:16,boxShadow:"0 20px 60px rgba(0,0,0,0.15)",width:"100%",maxWidth:480,padding:28}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+          <h2 style={{fontSize:19,fontWeight:700,color:"#111827"}}>아티클 수정</h2>
+          <button onClick={()=>setEditModal(null)} style={{color:"#9ca3af",fontSize:20,background:"none",border:"none",cursor:"pointer"}}>✕</button>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          {/* 발행 월 */}
+          <div>
+            <label style={{fontSize:14,color:"#9ca3af",display:"block",marginBottom:5}}>발행 월</label>
+            <div style={{display:"flex",alignItems:"center",gap:12}}>
+              <select disabled={editDraft.noMonth} value={editDraft.noMonth?"":(editDraft.month??0)} onChange={e=>setEditDraft(p=>({...p,month:Number(e.target.value)}))}
+                style={{flex:1,border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15,background:editDraft.noMonth?"#f9fafb":"#fff",color:editDraft.noMonth?"#9ca3af":"#374151"}}>
+                {MONTHS.map((m,i)=><option key={i} value={i}>{m}</option>)}
+              </select>
+              <label style={{display:"flex",alignItems:"center",gap:6,fontSize:15,color:"#6b7280",cursor:"pointer",whiteSpace:"nowrap"}}>
+                <input type="checkbox" checked={!!editDraft.noMonth} onChange={e=>setEditDraft(p=>({...p,noMonth:e.target.checked,month:e.target.checked?null:0}))}/>
+                월 미정
+              </label>
+            </div>
+          </div>
+          {/* 발행 예정일 */}
+          <div>
+            <label style={{fontSize:14,color:"#9ca3af",display:"block",marginBottom:5}}>발행 예정일</label>
+            <input type="date" disabled={editDraft.noMonth} value={editDraft.publishDate||""} onChange={e=>setEditDraft(p=>({...p,publishDate:e.target.value}))}
+              style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15,background:editDraft.noMonth?"#f9fafb":"#fff"}}/>
+          </div>
+          {/* 제목 */}
+          <div>
+            <label style={{fontSize:14,color:"#9ca3af",display:"block",marginBottom:5}}>아티클 제목</label>
+            <input value={editDraft.title||""} onChange={e=>setEditDraft(p=>({...p,title:e.target.value}))}
+              style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15}}/>
+          </div>
+          {/* URL */}
+          <div>
+            <label style={{fontSize:14,color:"#9ca3af",display:"block",marginBottom:5}}>URL</label>
+            <input value={editDraft.url||""} onChange={e=>setEditDraft(p=>({...p,url:e.target.value}))} placeholder="https://"
+              style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15}}/>
+          </div>
+          {/* 유형 */}
+          <div>
+            <label style={{fontSize:14,color:"#9ca3af",display:"block",marginBottom:5}}>유형</label>
+            <select value={editDraft.type||"서비스 설명"} onChange={e=>setEditDraft(p=>({...p,type:e.target.value}))}
+              style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15}}>
+              {TYPE_OPTIONS.map(t=><option key={t}>{t}</option>)}
+            </select>
+          </div>
+          {/* 핵심 키워드 */}
+          <div>
+            <label style={{fontSize:14,color:"#9ca3af",display:"block",marginBottom:5}}>핵심 키워드</label>
+            <input value={editDraft.keyword||""} onChange={e=>setEditDraft(p=>({...p,keyword:e.target.value}))} placeholder="ex. 보험, 드라이브"
+              style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15}}/>
+          </div>
+          {/* 진행 상태 */}
+          <div>
+            <label style={{fontSize:14,color:"#9ca3af",display:"block",marginBottom:5}}>진행 상태</label>
+            <select value={editDraft.status||"🗂 기획"} onChange={e=>setEditDraft(p=>({...p,status:e.target.value}))}
+              style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15}}>
+              {STATUS_OPTIONS.filter(s=>s!=="🚀 발행").map(s=><option key={s}>{s}</option>)}
+            </select>
+          </div>
+          {/* 메모 */}
+          <div>
+            <label style={{fontSize:14,color:"#9ca3af",display:"block",marginBottom:5}}>메모</label>
+            <input value={editDraft.memo||""} onChange={e=>setEditDraft(p=>({...p,memo:e.target.value}))} placeholder="참고사항 등"
+              style={{width:"100%",border:"1px solid #e5e7eb",borderRadius:8,padding:"9px 12px",fontSize:15}}/>
+          </div>
+        </div>
+        <div style={{display:"flex",gap:8,marginTop:24}}>
+          <button onClick={()=>setEditModal(null)} style={{flex:1,border:"1px solid #e5e7eb",borderRadius:8,padding:"11px 0",fontSize:15,color:"#6b7280",background:"#fff",cursor:"pointer"}}>취소</button>
+          <button onClick={async()=>{
+            const next=articles.map(a=>a.id===editDraft.id?{...a,...editDraft}:a);
+            setArticles(next); await saveArticles(next); setEditModal(null);
+          }} style={{flex:1,background:BRAND,color:"#fff",border:"none",borderRadius:8,padding:"11px 0",fontSize:15,fontWeight:600,cursor:"pointer"}}>저장</button>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {checklistArticle&&<ChecklistModal article={checklistArticle} onClose={()=>setChecklistArticle(null)} onUpdate={updateChecklist}/>}
       {blockArticle&&<BlockModal onClose={()=>setBlockArticle(null)} onOpenChecklist={()=>{setChecklistArticle(blockArticle);setBlockArticle(null);}}/>}
 
       {showAddModal&&(
